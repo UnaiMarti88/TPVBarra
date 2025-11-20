@@ -1,0 +1,64 @@
+# --- Archivos de compilación ---
+bin/
+obj/
+out/
+ 
+# --- Archivos de usuario y configuración ---
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.userprefs
+ 
+# --- Archivos de Visual Studio Code ---
+.vscode/
+.history/
+*.code-workspace
+ 
+# --- Archivos de paquetes y dependencias ---
+# Evita subir paquetes restaurables
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.log
+ 
+# --- Archivos de compilación y publicación ---
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.cache
+*.config
+*.dbmdl
+*.bak
+*.tmp
+ 
+# --- Archivos del sistema ---
+.DS_Store
+Thumbs.db
+desktop.ini
+ 
+# --- Archivos de cobertura y test ---
+*.coverage
+*.coveragexml
+TestResult*/
+*.trx
+ 
+# --- Archivos generados por herramientas ---
+*.ide
+*.tlog
+*.vspscc
+*.vssscc
+*.vsp
+*.psess
+*.vspx
+*.sap
+ 
+# --- Configuración local de IDEs ---
+.vs/
+.idea/
+ 
