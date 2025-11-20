@@ -19,6 +19,7 @@ out/
 # Evita subir paquetes restaurables
 *.nupkg
 *.snupkg
+*.nuspec
 packages/
 .nuget/
 project.lock.json
