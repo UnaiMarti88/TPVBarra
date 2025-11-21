@@ -7,6 +7,13 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        // Komponenteen deklarazioa
+        private Panel panelLogin;
+        private Label lblLogo;
+        private TextBox txtErabiltzailea;
+        private TextBox txtPasahitza;
+        private Button btnLogina;
+
         /// <summary>
         ///  Clean up any resources being used.
         /// </summary>
