@@ -37,6 +37,8 @@
             this.panelLogin.SuspendLayout();
             this.SuspendLayout();
 
+            ´// panelLogin propietateak
+
             this.panelLogin.BackColor = System.Drawing.Color.White;
             this.panelLogin.Controls.Add(this.lblLogo);
             this.panelLogin.Controls.Add(this.txtErabiltzailea);
@@ -46,6 +48,26 @@
             this.panelLogin.Name = "panelLogina";
             this.panelLogin.Size = new System.Drawing.Size(250, 250);
             this.panelLogin.TabIndex = 0;
+
+            // lblLogo propietateak
+
+            this.lblLogo.Font = new System.Drawing.Font("Segoe UI", 26F, System.Drawing.FontStyle.Bold);
+            this.lblLogo.ForeColor = System.Drawing.Color.FromArgb(63, 122, 224);
+            this.lblLogo.Location = new System.Drawing.Point(0, 10);
+            this.lblLogo.Name = "lblLogoa";
+            this.lblLogo.Size = new System.Drawing.Size(250, 50);
+            this.lblLogo.TabIndex = 0;
+            this.lblLogo.Text = "JAUS";
+            this.lblLogo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+
+            // txtErabiltzailea propietateak
+
+            this.txtErabiltzailea.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtErabiltzailea.Location = new System.Drawing.Point(25, 80);
+            this.txtErabiltzailea.Name = "txtErabiltzailea";
+            this.txtErabiltzailea.PlaceholderText = "Erabiltzailea";
+            this.txtErabiltzailea.Size = new System.Drawing.Size(200, 23);
+            this.txtErabiltzailea.TabIndex = 1;
 
         }
 
