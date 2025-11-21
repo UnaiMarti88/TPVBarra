@@ -27,6 +27,28 @@
             base.Dispose(disposing);
         }
 
+        public void initializeComponent()
+        {
+            this.panelLogin = new Panel();
+            this.lblLogo = new Label();
+            this.txtErabiltzailea = new TextBox();
+            this.txtPasahitza = new TextBox();
+            this.btnLogina = new Button();
+            this.panelLogin.SuspendLayout();
+            this.SuspendLayout();
+
+            this.panelLogin.BackColor = System.Drawing.Color.White;
+            this.panelLogin.Controls.Add(this.lblLogo);
+            this.panelLogin.Controls.Add(this.txtErabiltzailea);
+            this.panelLogin.Controls.Add(this.txtPasahitza);
+            this.panelLogin.Controls.Add(this.btnLogina);
+            this.panelLogin.Location = new System.Drawing.Point(175, 100);
+            this.panelLogin.Name = "panelLogina";
+            this.panelLogin.Size = new System.Drawing.Size(250, 250);
+            this.panelLogin.TabIndex = 0;
+
+        }
+
         #region Windows Form Designer generated code
 
         /// <summary>
