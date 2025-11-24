@@ -8,9 +8,9 @@ namespace TPVBarra
 
         private Panel panelLogin;
         private Label lblLogo;
-        private TextBox txtUsuario;
-        private TextBox txtContrasena;
-        private Button btnLogin;
+        private TextBox txtErabiltzailea;
+        private TextBox txtPasahitza;
+        private Button btnLogina;
 
         protected override void Dispose(bool disposing)
         {
@@ -23,84 +23,91 @@ namespace TPVBarra
 
         private void InitializeComponent()
         {
-            this.panelLogin = new System.Windows.Forms.Panel();
-            this.lblLogo = new System.Windows.Forms.Label();
-            this.txtUsuario = new System.Windows.Forms.TextBox();
-            this.txtContrasena = new System.Windows.Forms.TextBox();
-            this.btnLogin = new System.Windows.Forms.Button();
-            this.panelLogin.SuspendLayout();
-            this.SuspendLayout();
+            panelLogin = new Panel();
+            lblLogo = new Label();
+            txtErabiltzailea = new TextBox();
+            txtPasahitza = new TextBox();
+            btnLogina = new Button();
+            panelLogin.SuspendLayout();
+            SuspendLayout();
             // 
             // panelLogin
             // 
-            this.panelLogin.BackColor = System.Drawing.Color.White;
-            this.panelLogin.Controls.Add(this.lblLogo);
-            this.panelLogin.Controls.Add(this.txtUsuario);
-            this.panelLogin.Controls.Add(this.txtContrasena);
-            this.panelLogin.Controls.Add(this.btnLogin);
-            this.panelLogin.Location = new System.Drawing.Point(175, 100);
-            this.panelLogin.Name = "panelLogin";
-            this.panelLogin.Size = new System.Drawing.Size(250, 250);
-            this.panelLogin.TabIndex = 0;
+            panelLogin.BackColor = Color.White;
+            panelLogin.Controls.Add(lblLogo);
+            panelLogin.Controls.Add(txtErabiltzailea);
+            panelLogin.Controls.Add(txtPasahitza);
+            panelLogin.Controls.Add(btnLogina);
+            panelLogin.Location = new Point(200, 133);
+            panelLogin.Margin = new Padding(3, 4, 3, 4);
+            panelLogin.Name = "panelLogin";
+            panelLogin.Size = new Size(286, 333);
+            panelLogin.TabIndex = 0;
+            panelLogin.Paint += panelLogin_Paint;
             // 
             // lblLogo
             // 
-            this.lblLogo.Font = new System.Drawing.Font("Segoe UI", 26F, System.Drawing.FontStyle.Bold);
-            this.lblLogo.ForeColor = System.Drawing.Color.FromArgb(63, 122, 224);
-            this.lblLogo.Location = new System.Drawing.Point(0, 10);
-            this.lblLogo.Name = "lblLogo";
-            this.lblLogo.Size = new System.Drawing.Size(250, 50);
-            this.lblLogo.TabIndex = 0;
-            this.lblLogo.Text = "JAUS";
-            this.lblLogo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblLogo.Font = new Font("Segoe UI", 26F, FontStyle.Bold);
+            lblLogo.ForeColor = Color.FromArgb(63, 122, 224);
+            lblLogo.Location = new Point(0, 13);
+            lblLogo.Name = "lblLogo";
+            lblLogo.Size = new Size(286, 67);
+            lblLogo.TabIndex = 0;
+            lblLogo.Text = "JAUS";
+            lblLogo.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // txtUsuario
+            // txtErabiltzailea
             // 
-            this.txtUsuario.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtUsuario.Location = new System.Drawing.Point(25, 80);
-            this.txtUsuario.Name = "txtUsuario";
-            this.txtUsuario.PlaceholderText = "Erabiltzailea";
-            this.txtUsuario.Size = new System.Drawing.Size(200, 23);
-            this.txtUsuario.TabIndex = 1;
+            txtErabiltzailea.BorderStyle = BorderStyle.FixedSingle;
+            txtErabiltzailea.Location = new Point(29, 107);
+            txtErabiltzailea.Margin = new Padding(3, 4, 3, 4);
+            txtErabiltzailea.Name = "txtErabiltzailea";
+            txtErabiltzailea.PlaceholderText = "Erabiltzailea";
+            txtErabiltzailea.Size = new Size(229, 27);
+            txtErabiltzailea.TabIndex = 1;
             // 
-            // txtContrasena
+            // txtPasahitza
             // 
-            this.txtContrasena.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtContrasena.Location = new System.Drawing.Point(25, 120);
-            this.txtContrasena.Name = "txtContrasena";
-            this.txtContrasena.PlaceholderText = "Pasahitza";
-            this.txtContrasena.Size = new System.Drawing.Size(200, 23);
-            this.txtContrasena.TabIndex = 2;
-            this.txtContrasena.UseSystemPasswordChar = true;
+            txtPasahitza.BorderStyle = BorderStyle.FixedSingle;
+            txtPasahitza.Location = new Point(29, 160);
+            txtPasahitza.Margin = new Padding(3, 4, 3, 4);
+            txtPasahitza.Name = "txtPasahitza";
+            txtPasahitza.PlaceholderText = "Pasahitza";
+            txtPasahitza.Size = new Size(228, 27);
+            txtPasahitza.TabIndex = 2;
+            txtPasahitza.UseSystemPasswordChar = true;
             // 
-            // btnLogin
+            // btnLogina
             // 
-            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(63, 122, 224);
-            this.btnLogin.FlatAppearance.BorderSize = 0;
-            this.btnLogin.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(44, 90, 160);
-            this.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLogin.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLogin.ForeColor = System.Drawing.Color.White;
-            this.btnLogin.Location = new System.Drawing.Point(50, 170);
-            this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(150, 35);
-            this.btnLogin.TabIndex = 3;
-            this.btnLogin.Text = "Saioa Hasi";
-            this.btnLogin.UseVisualStyleBackColor = false;
-            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
+            btnLogina.BackColor = Color.FromArgb(63, 122, 224);
+            btnLogina.FlatAppearance.BorderSize = 0;
+            btnLogina.FlatAppearance.MouseDownBackColor = Color.FromArgb(44, 90, 160);
+            btnLogina.FlatStyle = FlatStyle.Flat;
+            btnLogina.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnLogina.ForeColor = Color.White;
+            btnLogina.Location = new Point(57, 227);
+            btnLogina.Margin = new Padding(3, 4, 3, 4);
+            btnLogina.Name = "btnLogina";
+            btnLogina.Size = new Size(171, 47);
+            btnLogina.TabIndex = 3;
+            btnLogina.Text = "Saioa Hasi";
+            btnLogina.UseVisualStyleBackColor = false;
+            btnLogina.Click += btnLogin_Click;
             // 
-            // FormLogin
+            // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(600, 450);
-            this.Controls.Add(this.panelLogin);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "FormLogin";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "FormLogin";
-            this.panelLogin.Paint += new System.Windows.Forms.PaintEventHandler(this.panelLogin_Paint);
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(686, 600);
+            Controls.Add(panelLogin);
+            FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "FormLogin";
+            panelLogin.ResumeLayout(false);
+            panelLogin.PerformLayout();
+            ResumeLayout(false);
         }
     }
 }

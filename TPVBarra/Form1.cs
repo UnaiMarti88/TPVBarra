@@ -64,7 +64,7 @@ namespace TPVBarra
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Intentando iniciar sesión...");
+            MessageBox.Show("Saioa hasten...");
         }
     }
 }
