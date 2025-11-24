@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ConsolaNHibernate.Modeloak;
+using TPVBarra.Modeloak;
 using FluentNHibernate.Mapping;
 
 namespace TPVBarra.Mapeoak

@@ -12,4 +12,10 @@
     <Folder Include="Kontroladoreak\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentNHibernate" Version="3.4.1" />
+    <PackageReference Include="MySql.Data" Version="9.5.0" />
+    <PackageReference Include="NHibernate" Version="5.6.0" />
+  </ItemGroup>
+
 </Project>
