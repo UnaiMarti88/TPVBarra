@@ -2,7 +2,7 @@
 
 namespace TPVBarra
 {
-    partial class Form1
+    partial class Logina
     {
         private System.ComponentModel.IContainer components = null;
 

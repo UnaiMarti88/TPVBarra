@@ -2,9 +2,9 @@ using System.Drawing.Drawing2D;
 
 namespace TPVBarra
 {
-    public partial class Form1 : Form
+    public partial class Logina : Form
     {
-        public Form1()
+        public Logina()
         {
             InitializeComponent();
             this.DoubleBuffered = true;
@@ -64,7 +64,23 @@ namespace TPVBarra
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Saioa hasten...");
+            String izena = txtErabiltzailea.Text;
+            String pasahitza = txtPasahitza.Text;
+
+            var kontroladoreaErabiltzailea = new Kontroladoreak.KontroladoreaErabiltzailea(NHibernateHelper.NHibernateHelperra.SessionFactory);
+            var erabiltzailea = kontroladoreaErabiltzailea.saioaHasi(izena, pasahitza);
+
+            if (erabiltzailea != null)
+            {
+                // Saioa ondo hasi da
+                MessageBox.Show("Ongi etorri, " + erabiltzailea.Izena + "!");
+                // Hemen jar dezakezu aplikazioaren beste leihoa irekitzen
+            }
+            else
+            {
+                // Saioa hasteko huts egin du
+                MessageBox.Show("Erabiltzaile izena edo pasahitza okerra da.");
+            }
         }
     }
 }

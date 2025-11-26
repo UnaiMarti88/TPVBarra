@@ -8,14 +8,14 @@ using FluentNHibernate.Mapping;
 
 namespace TPVBarra.Mapeoak
 {
-    internal class ErabiltzaileakMap
+    internal class ErabiltzaileakMap : ClassMap<Erabiltzailea>
     {
         public ErabiltzaileakMap()
         {
-            Table("ERABILTZAILEAK");
+            Table("erabiltzaileak");
             Id(x => x.Id).Column("ID").GeneratedBy.Identity();
-            Map(x => x.Izena).Column("izena").Lengh(45);
-            Map(x => x.Pasahitza).Column("pasahitza").Lengh(45);
+            Map(x => x.Izena).Column("izena").Length(45);
+            Map(x => x.Pasahitza).Column("pasahitza").Length(45);
         }
     }
 }
