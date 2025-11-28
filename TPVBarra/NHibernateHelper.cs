@@ -40,7 +40,7 @@ namespace TPVBarra
                         MySQLConfiguration.Standard
                             .ConnectionString(cs => cs
                                 .Server("192.168.115.161") // 192.168.115.161  localhost
-                                .Database("tpv_proba") // tpv_proba  probak
+                                .Database("tpv") // tpv_proba  probak
                                 .Username("admin") // Admin  root
                                 .Password("Taldea4") // Taldea4  1MG2024
                             )
