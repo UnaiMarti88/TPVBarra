@@ -47,7 +47,7 @@ namespace TPVBarra
                     )
                     .Mappings(m =>
                     {
-                        m.FluentMappings.AddFromAssemblyOf<ErabiltzaileakMap>();
+                        m.FluentMappings.AddFromAssemblyOf<ErabiltzaileaMap>();
                     })
                     .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true)) // Ez dezan sortu taula exekuzio bakoitzeko
                     .BuildSessionFactory();

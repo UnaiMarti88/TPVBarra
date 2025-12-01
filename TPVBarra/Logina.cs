@@ -14,7 +14,6 @@ namespace TPVBarra
             this.MinimizeBox = true;
         }
 
-        // Fondo con degradado
         protected override void OnPaint(PaintEventArgs e)
         {
             LinearGradientBrush brush = new LinearGradientBrush(
@@ -38,8 +37,6 @@ namespace TPVBarra
             path.CloseFigure();
             return path;
         }
-
-        // Bordes redondeados al panel
         private void panelLogin_Paint(object sender, PaintEventArgs e)
         {
             int radius = 15;
@@ -72,9 +69,17 @@ namespace TPVBarra
 
             if (erabiltzailea != null)
             {
-                // Saioa ondo hasi da
-                MessageBox.Show("Ongi etorri, " + erabiltzailea.Izena + "!");
-                // Hemen jar dezakezu aplikazioaren beste leihoa irekitzen
+                if (erabiltzailea.ezabatua)
+                {
+                    MessageBox.Show("Erabiltzailea ez da aktiboa.");
+                    return;
+                } else
+                {
+                    // Saioa ondo hasi da
+                    MessageBox.Show("Ongi etorri, " + erabiltzailea.izena + "!");
+                    // Hemen jar dezakezu aplikazioaren beste leihoa irekitzen
+                }
+
             }
             else
             {

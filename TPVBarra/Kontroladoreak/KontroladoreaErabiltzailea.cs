@@ -22,7 +22,7 @@ namespace TPVBarra.Kontroladoreak
             using (var session = _sessionFactory.OpenSession())
             {
                 var erabiltzailea = session.Query<Erabiltzailea>()
-                    .FirstOrDefault(e => e.Izena == izena && e.Pasahitza == pasahitza);
+                    .FirstOrDefault(e => e.izena == izena && e.pasahitza == pasahitza);
                 return erabiltzailea;
             }
         }
