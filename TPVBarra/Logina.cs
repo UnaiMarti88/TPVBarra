@@ -71,15 +71,16 @@ namespace TPVBarra
             {
                 if (erabiltzailea.ezabatua)
                 {
+                    // datu basean erabiltzailea ezabatua dago
                     MessageBox.Show("Erabiltzailea ez da aktiboa.");
                     return;
                 } else
                 {
-                    // Saioa ondo hasi da
                     MessageBox.Show("Ongi etorri, " + erabiltzailea.izena + "!");
-                    // Hemen jar dezakezu aplikazioaren beste leihoa irekitzen
+                    Orria orria = new Orria();
+                    this.Hide();
+                    orria.Show();
                 }
-
             }
             else
             {

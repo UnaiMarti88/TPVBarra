@@ -17,7 +17,8 @@ namespace TPVBarra.Modeloak
 
         public Erabiltzailea() { }
 
-        public Erabiltzailea(string izena, string pasahitza) { 
+        public Erabiltzailea(string izena, string pasahitza)
+        {
             this.izena = izena;
             this.pasahitza = pasahitza;
         }
