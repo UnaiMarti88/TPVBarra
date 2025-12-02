@@ -15,6 +15,25 @@ namespace TPVBarra
         public Orria()
         {
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized;
+            this.Text = "TPV Barra - Orria Nagusia";
+
+        }
+
+        private void Orria_resize(object sender, EventArgs e)
+        {
+            EguneratuPanelak();
+        }
+
+        private void EguneratuPanelak()
+        {
+            EguneratuEskuinPanelak();
+        }
+
+        private void EguneratuEskuinPanelak()
+        {
+            int width = (int)(this.ClientSize.Width * 0.5);
+            eskuinPanela.Size = new Size(width, this.ClientSize.Height);
         }
     }
 }

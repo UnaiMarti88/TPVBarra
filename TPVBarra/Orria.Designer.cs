@@ -20,6 +20,10 @@
             base.Dispose(disposing);
         }
 
+        private FlowLayoutPanel eskuinPanela;
+
+
+
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -32,6 +36,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "Orria";
+
+            eskuinPanela = new FlowLayoutPanel();
+
+            eskuinPanela.BackColor = Color.LightSlateGray;
+            eskuinPanela.Dock = DockStyle.Right;
+
+            this.Controls.Add(eskuinPanela);
         }
 
         #endregion
