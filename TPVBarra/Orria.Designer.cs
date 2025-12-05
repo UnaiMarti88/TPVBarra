@@ -32,17 +32,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Orria";
-
             eskuinPanela = new FlowLayoutPanel();
-
+            SuspendLayout();
+            // 
+            // eskuinPanela
+            // 
             eskuinPanela.BackColor = Color.LightSlateGray;
-            eskuinPanela.Dock = DockStyle.Right;
-
-            this.Controls.Add(eskuinPanela);
+            eskuinPanela.Location = new Point(0, 0);
+            eskuinPanela.Name = "eskuinPanela";
+            eskuinPanela.Size = new Size(100, 100);
+            eskuinPanela.TabIndex = 0;
+            // 
+            // Orria
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 450);
+            Controls.Add(eskuinPanela);
+            Name = "Orria";
+            Text = "Orria";
+            ResumeLayout(false);
         }
 
         #endregion
