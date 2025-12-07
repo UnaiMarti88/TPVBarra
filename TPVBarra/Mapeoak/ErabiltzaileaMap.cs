@@ -15,7 +15,7 @@ namespace TPVBarra.Mapeoak
             Table("erabiltzaileak");
             Id(x => x.id).Column("ID").GeneratedBy.Identity();
             Map(x => x.izena).Column("izena").Length(45);
-            Map(x => x.emiala).Column("email").Length(100);
+            Map(x => x.emaila).Column("email").Length(100);
             Map(x => x.pasahitza).Column("pasahitza").Length(45);
             References(x => x.rola).Column("rola_id").Not.Nullable();
             Map(x => x.ezabatua).Column("ezabatua");

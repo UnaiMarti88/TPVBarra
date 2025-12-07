@@ -10,7 +10,7 @@ namespace TPVBarra.Modeloak
     {
         public virtual int id { get; set; }
         public virtual string izena { get; set; }
-        public virtual string emiala { get; set; }
+        public virtual string emaila { get; set; }
         public virtual string pasahitza { get; set; }
         public virtual Rola rola { get; set; }
         public virtual bool ezabatua { get; set; }
@@ -26,7 +26,7 @@ namespace TPVBarra.Modeloak
         public Erabiltzailea(int id, string izena, string emaila, string pasahitza, Rola rola, bool ezabatua) {
             this.id = id;
             this.izena = izena;
-            this.emiala = emaila;
+            this.emaila = emaila;
             this.pasahitza = pasahitza;
             this.rola = rola;
             this.ezabatua = ezabatua;

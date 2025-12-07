@@ -1,4 +1,6 @@
 using System.Drawing.Drawing2D;
+using System.Threading.Tasks;
+using TPVBarra.ApiKonexioak;
 
 namespace TPVBarra
 {
@@ -59,13 +61,16 @@ namespace TPVBarra
             }
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
             String izena = txtErabiltzailea.Text;
             String pasahitza = txtPasahitza.Text;
 
-            var kontroladoreaErabiltzailea = new Kontroladoreak.KontroladoreaErabiltzailea(NHibernateHelper.NHibernateHelperra.SessionFactory);
-            var erabiltzailea = kontroladoreaErabiltzailea.saioaHasi(izena, pasahitza);
+            ApiLogina loginApi = new ApiLogina();
+            var erabiltzailea = await loginApi.LoginAsync(izena, pasahitza);
+
+            //var kontroladoreaErabiltzailea = new Kontroladoreak.KontroladoreaErabiltzailea(NHibernateHelper.NHibernateHelperra.SessionFactory);
+            //var erabiltzailea = kontroladoreaErabiltzailea.saioaHasi(izena, pasahitza);
 
             if (erabiltzailea != null)
             {
