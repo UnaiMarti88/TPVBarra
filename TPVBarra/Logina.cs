@@ -81,7 +81,7 @@ namespace TPVBarra
                     return;
                 } else
                 {
-                    MessageBox.Show("Ongi etorri, " + erabiltzailea.izena + "!");
+                    MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
                     Orria orria = new Orria();
                     this.Hide();
                     orria.Show();
