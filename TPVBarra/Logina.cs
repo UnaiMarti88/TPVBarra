@@ -1,6 +1,7 @@
 using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 using TPVBarra.ApiKonexioak;
+using TPVBarra.Modeloak;
 
 namespace TPVBarra
 {
@@ -69,9 +70,6 @@ namespace TPVBarra
             ApiLogina loginApi = new ApiLogina();
             var erabiltzailea = await loginApi.LoginAsync(izena, pasahitza);
 
-            //var kontroladoreaErabiltzailea = new Kontroladoreak.KontroladoreaErabiltzailea(NHibernateHelper.NHibernateHelperra.SessionFactory);
-            //var erabiltzailea = kontroladoreaErabiltzailea.saioaHasi(izena, pasahitza);
-
             if (erabiltzailea != null)
             {
                 if (erabiltzailea.ezabatua)
@@ -79,12 +77,23 @@ namespace TPVBarra
                     // datu basean erabiltzailea ezabatua dago
                     MessageBox.Show("Erabiltzailea ez da aktiboa.");
                     return;
-                } else
+                }
+                else
                 {
-                    MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
-                    Orria orria = new Orria();
-                    this.Hide();
-                    orria.Show();
+                    if (erabiltzailea.rola.id == 2)
+                    {
+                        // zerbitzaria bada
+                        MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
+                        Orria orria = new Orria(erabiltzailea.id);
+                        this.Hide();
+                        orria.Show();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ezin duzu aplikaziora sartu zure rola dela eta hitz egin administratzailearekin");
+                        return;
+                    }
+
                 }
             }
             else
