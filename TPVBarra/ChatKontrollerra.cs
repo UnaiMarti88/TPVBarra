@@ -8,7 +8,7 @@
         {
             InitializeComponent();
 
-            bezeroa = new BezeroChat("192.168.1.101", 50001, erab);
+            bezeroa = new BezeroChat("192.168.1.205", 50001, erab);
 
             bezeroa.MezuaJasota += mensaje =>
             {

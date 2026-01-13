@@ -31,7 +31,7 @@ namespace TPVBarra.ApiKonexioak
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
-            HttpResponseMessage response = await client.PostAsync("https://localhost:7236/api/LoginKontrollera", content);
+            HttpResponseMessage response = await client.PostAsync("https://localhost:7236/api/Logina", content);
 
             if (!response.IsSuccessStatusCode)
             {

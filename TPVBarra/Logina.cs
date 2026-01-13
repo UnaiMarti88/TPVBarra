@@ -84,7 +84,7 @@ namespace TPVBarra
                     {
                         // zerbitzaria bada
                         MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
-                        Orria orria = new Orria(erabiltzailea.id);
+                        Orria orria = new Orria(erabiltzailea.id,erabiltzailea.erabiltzailea);
                         this.Hide();
                         orria.Show();
                     }

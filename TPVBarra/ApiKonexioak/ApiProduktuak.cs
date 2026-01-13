@@ -13,7 +13,7 @@ namespace TPVBarra.ApiKonexioak
         public async Task<List<ProduktuaDTO>> LortuProduktuakKategoriagatik(int kategoriaId)
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:7236/api/ProduktuakKontrollera/kategoria/{kategoriaId}");
+            var response = await client.GetAsync($"https://localhost:7236/api/Produktuak/kategoria/{kategoriaId}");
             response.EnsureSuccessStatusCode();
             string json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<ProduktuaDTO>>(json);

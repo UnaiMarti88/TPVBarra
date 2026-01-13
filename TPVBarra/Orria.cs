@@ -15,13 +15,16 @@ namespace TPVBarra
     public partial class Orria : Form
     {
         private int _loginId;
+        private string _loginIzena;
 
-        public Orria(int erabiltzaileId)
+        public Orria(int erabiltzaileId, string erabiltzaileIzena)
         {
             _loginId = erabiltzaileId;
+            _loginIzena = erabiltzaileIzena;
+
             InitializeComponent();
 
-            var chat = new ChatKontrollerra("Zerbitzaria_" + _loginId);
+            var chat = new ChatKontrollerra(_loginIzena);
             erdiaGoian.Controls.Add(chat);
             chat.Dock = DockStyle.Fill;
 
@@ -47,27 +50,66 @@ namespace TPVBarra
 
                 foreach (DataGridViewRow row in produktuTaula.Rows)
                 {
-                    if (row.Cells["ProduktuaId"].Value != null)
+                    if (row.IsNewRow) continue;
+
+                    var produktuaIdValue = row.Cells["ProduktuaId"].Value;
+                    var prezioaValue = row.Cells["Prezioa"].Value;
+
+                    if (produktuaIdValue == null || produktuaIdValue == DBNull.Value)
                     {
-                        produktuak.Add(new EskaeraProduktuaDTO
-                        {
-                            ProduktuaId = Convert.ToInt32(row.Cells["ProduktuaId"].Value),
-                            Kantitatea = 1,
-                            PrezioUnitarioa = Convert.ToDecimal(row.Cells["Prezioa"].Value)
-                        });
+                        MessageBox.Show("ProduktuId hutsik dago.");
+                        continue;
                     }
+
+                    if (prezioaValue == null || prezioaValue == DBNull.Value)
+                    {
+                        MessageBox.Show($"Prezioa hutsik dago ProduktuaId = {produktuaIdValue}");
+                        continue;
+                    }
+
+                    produktuak.Add(new EskaeraProduktuaDTO
+                    {
+                        ProduktuaId = Convert.ToInt32(row.Cells["ProduktuaId"].Value),
+                        Kantitatea = 1,
+                        PrezioUnitarioa = Convert.ToDecimal(row.Cells["Prezioa"].Value)
+                    });
+                    
                 }
 
-                if (produktuak.Count == 0)
+                if (!produktuak.Any())
                 {
                     MessageBox.Show("Ez duzu produkturik aukeratu.");
                     return;
                 }
 
                 int mahaiaId = 1;
-                await api.SortuEskaeraAsync(_loginId, produktuak, mahaiaId);
 
-                MessageBox.Show("Eskaera sortuta!");
+                try
+                {
+                    var erantzuna = await api.SortuEskaeraAsync(_loginId, produktuak, mahaiaId);
+                    
+                    if (erantzuna.Code == 200)
+                    {
+                        MessageBox.Show("Eskaera sortu da arrakastaz!");
+                        produktuTaula.Rows.Clear();
+                    }
+                    else
+                    {
+                        var produktuakStockGabe =
+                            erantzuna.ProduktuakStockGabe != null &&
+                            erantzuna.ProduktuakStockGabe.Any()
+                                ? string.Join(", ", erantzuna.ProduktuakStockGabe)
+                    :           "ezezagunak";
+
+                        MessageBox.Show(
+                            $"Errorea: {erantzuna.Message}\nProduktuak stock gabe: {produktuakStockGabe}"
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Arazoa: " + ex.Message);
+                }
             };
 
             this.Shown += async (s, e) => { await KargatuKategoriak(); };
