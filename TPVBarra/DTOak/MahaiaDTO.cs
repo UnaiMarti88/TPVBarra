@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace TPVBarra.DTOak
 {
-    public class ErantzunaDTO<T>
+    internal class MahaiaDTO
     {
-        public int Code { get; set; }
-        public string Message { get; set; }
-        public List<T> Datuak { get; set; }
+        public int Id { get; set; }
+        public int Zenbakia { get; set; }
     }
 }

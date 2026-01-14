@@ -10,7 +10,7 @@ namespace TPVBarra.ApiKonexioak
 {
     public class ApiEskaerak
     {
-        public async Task<ErantzunaDTO> SortuEskaeraAsync(int idLogina, List<EskaeraProduktuaDTO> produktuak, int mahaiaId)
+        public async Task<ErantzunaDTO<String>> SortuEskaeraAsync(int idLogina, List<EskaeraProduktuaDTO> produktuak, int mahaiaId)
         {
             using var client = new HttpClient();
 
@@ -28,7 +28,7 @@ namespace TPVBarra.ApiKonexioak
             var response = await client.PostAsync("https://localhost:7236/api/eskaerak", content);
             var responseJson = await response.Content.ReadAsStringAsync();
 
-            var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO>(responseJson);
+            var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<String>>(responseJson);
             return erantzuna;
         }
     }

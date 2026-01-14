@@ -16,6 +16,7 @@ namespace TPVBarra
     {
         private int _loginId;
         private string _loginIzena;
+        private int? _mahaiaIdAukeratua = null;
 
         public Orria(int erabiltzaileId, string erabiltzaileIzena)
         {
@@ -24,9 +25,9 @@ namespace TPVBarra
 
             InitializeComponent();
 
-            var chat = new ChatKontrollerra(_loginIzena);
-            erdiaGoian.Controls.Add(chat);
-            chat.Dock = DockStyle.Fill;
+            //var chat = new ChatKontrollerra(_loginIzena);
+            //erdiaGoian.Controls.Add(chat);
+            //chat.Dock = DockStyle.Fill;
 
             EguneratuPanelak();
             eguneratuGoikoPanela();
@@ -42,6 +43,25 @@ namespace TPVBarra
                 Font = new Font("Segoe UI", 12, FontStyle.Bold)
             };
             eskuinPanela.Controls.Add(eskaeraBotoia);
+
+            Button mahaiaBotoia = new Button
+            {
+                Name = "mahaiaBotoia",
+                Text = "Aukeratu mahaia",
+                Height = 50,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkBlue,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11, FontStyle.Bold)
+            };
+
+            eskuinPanela.Controls.Add(mahaiaBotoia);
+            eskuinPanela.Controls.SetChildIndex(mahaiaBotoia, 1);
+
+            mahaiaBotoia.Click += async (s, e) =>
+            {
+                await AukeratuMahaiaAsync();
+            };
 
             eskaeraBotoia.Click += async (s, e) =>
             {
@@ -82,7 +102,13 @@ namespace TPVBarra
                     return;
                 }
 
-                int mahaiaId = 1;
+                if (_mahaiaIdAukeratua == null)
+                {
+                    MessageBox.Show("Lehenengo mahaia aukeratu behar duzu.");
+                    return;
+                }
+
+                int mahaiaId = _mahaiaIdAukeratua.Value;
 
                 try
                 {
@@ -96,9 +122,9 @@ namespace TPVBarra
                     else
                     {
                         var produktuakStockGabe =
-                            erantzuna.ProduktuakStockGabe != null &&
-                            erantzuna.ProduktuakStockGabe.Any()
-                                ? string.Join(", ", erantzuna.ProduktuakStockGabe)
+                            erantzuna.Datuak != null &&
+                            erantzuna.Datuak.Any()
+                                ? string.Join(", ", erantzuna.Datuak)
                     :           "ezezagunak";
 
                         MessageBox.Show(
@@ -129,7 +155,61 @@ namespace TPVBarra
                 eguneratuGoikoPanela();
             };
         }
+        private async Task AukeratuMahaiaAsync()
+        {
+            var api = new ApiMahaiak();
+            var mahaiak = await api.LortuMahaiLibreAsync();
 
+            if (mahaiak == null || !mahaiak.Any())
+            {
+                MessageBox.Show("Ez dago mahai librerik.");
+                return;
+            }
+
+            Form popup = new Form
+            {
+                Text = "Mahaia aukeratu",
+                Size = new Size(300, 150),
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            ComboBox combo = new ComboBox
+            {
+                DataSource = mahaiak,
+                DisplayMember = "Zenbakia",
+                ValueMember = "Id",
+                Dock = DockStyle.Top,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+
+            Button ok = new Button
+            {
+                Text = "Aukeratu",
+                Dock = DockStyle.Bottom
+            };
+
+            ok.Click += (s, e) =>
+            {
+                _mahaiaIdAukeratua = (int)combo.SelectedValue;
+                popup.Close();
+            };
+
+            popup.Controls.Add(combo);
+            popup.Controls.Add(ok);
+            popup.ShowDialog();
+
+            if (_mahaiaIdAukeratua != null)
+            {
+                foreach (Control c in eskuinPanela.Controls)
+                {
+                    if (c is Button b && b.Name == "mahaiaBotoia")
+                    {
+                        b.Text = $"Mahaia: {combo.Text}";
+                        break;
+                    }
+                }
+            }
+        }
         private void Orria_resize(object sender, EventArgs e)
         {
             EguneratuPanelak();
