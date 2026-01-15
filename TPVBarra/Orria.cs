@@ -103,6 +103,79 @@ namespace TPVBarra
             eskuinPanela.Controls.Add(mahaiaBotoia);
             eskuinPanela.Controls.SetChildIndex(mahaiaBotoia, 1);
 
+            Button eskearaBotoia = new Button
+            {
+                Name = "eskearaBotoia",
+                Text = "Kargatu eskaera",
+                Height = 50,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkOrange,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11, FontStyle.Bold)
+            };
+
+            eskuinPanela.Controls.Add(eskearaBotoia);
+            eskuinPanela.Controls.SetChildIndex(eskearaBotoia, 2);
+
+            eskearaBotoia.Click += async (s, e) =>
+            {
+                var api = new ApiEskaerak();
+                var erantzunaEskaerak = await api.LortuEskaerakAsync(_loginId);
+
+                if (erantzunaEskaerak.Code != 200 || erantzunaEskaerak.Datuak == null || !erantzunaEskaerak.Datuak.Any())
+                {
+                    MessageBox.Show(erantzunaEskaerak.Message ?? "Ez dago eskaera existitzen.");
+                    return;
+                }
+
+                Form popup = new Form
+                {
+                    Text = "Eskaera aukeratu",
+                    Size = new Size(400, 200),
+                    StartPosition = FormStartPosition.CenterParent
+                };
+
+                ComboBox combo = new ComboBox
+                {
+                    DataSource = erantzunaEskaerak.Datuak,
+                    DisplayMember = "Izena",
+                    ValueMember = "Id",
+                    Dock = DockStyle.Top,
+                    DropDownStyle = ComboBoxStyle.DropDownList
+                };
+
+                Button ok = new Button
+                {
+                    Text = "Kargatu",
+                    Dock = DockStyle.Bottom
+                };
+
+                ok.Click += async (sender2, e2) =>
+                {
+                    int eskaeraId = (int)combo.SelectedValue;
+                    popup.Close();
+
+                    produktuTaula.Rows.Clear();
+
+                    var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskaeraId);
+
+                    if (erantzunaProduktuak.Code != 200 || erantzunaProduktuak.Datuak.Count == 0)
+                    {
+                        MessageBox.Show(erantzunaProduktuak.Message ?? "Errorea produktuak lortzean");
+                        return;
+                    }
+
+                    foreach (var p in erantzunaProduktuak.Datuak)
+                    {
+                        produktuTaula.Rows.Add(p.ProduktuaId, p.ProduktuaIzena, p.PrezioUnitarioa);
+                    }
+                };
+
+                popup.Controls.Add(combo);
+                popup.Controls.Add(ok);
+                popup.ShowDialog();
+            };
+
             mahaiaBotoia.Click += async (s, e) =>
             {
                 await AukeratuMahaiaAsync();
@@ -135,7 +208,6 @@ namespace TPVBarra
                     produktuak.Add(new EskaeraProduktuaDTO
                     {
                         ProduktuaId = Convert.ToInt32(row.Cells["ProduktuaId"].Value),
-                        Kantitatea = 1,
                         PrezioUnitarioa = Convert.ToDecimal(row.Cells["Prezioa"].Value)
                     });
                     
@@ -183,8 +255,6 @@ namespace TPVBarra
                 }
             };
 
-            
-
             EguneratuPanelak();
 
             this.Resize += (s, e) =>
@@ -231,7 +301,6 @@ namespace TPVBarra
 
             
         }
-
 
         private async Task AukeratuMahaiaAsync()
         {

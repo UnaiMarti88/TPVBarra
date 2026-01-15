@@ -9,7 +9,7 @@ namespace TPVBarra.DTOak
     public class EskaeraProduktuaDTO
     {
         public int ProduktuaId { get; set; }
-        public int Kantitatea { get; set; }
+        public string ProduktuaIzena { get; set; }
         public decimal PrezioUnitarioa { get; set; }
     }
 }
