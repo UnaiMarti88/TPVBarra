@@ -24,13 +24,57 @@ namespace TPVBarra
             _loginIzena = erabiltzaileIzena;
 
             InitializeComponent();
+            this.DoubleBuffered = true;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.WindowState = FormWindowState.Maximized;
+            this.Text = "TPV Barra - Orria Nagusia";
+
+            EguneratuPanelak();
+            eguneratuGoikoPanela();
 
             //var chat = new ChatKontrollerra(_loginIzena);
             //erdiaGoian.Controls.Add(chat);
             //chat.Dock = DockStyle.Fill;
 
-            EguneratuPanelak();
-            eguneratuGoikoPanela();
+            Button kentzekoBotoia = new Button
+            {
+                Text = "Produktu hau kendu",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkRed,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+
+            kentzekoBotoia.Click += (s, e) =>
+            {
+                if (produktuTaula.SelectedRows.Count > 0)
+                {
+                    foreach (DataGridViewRow lerroa in produktuTaula.SelectedRows)
+                    {
+                        if (!lerroa.IsNewRow)
+                            produktuTaula.Rows.Remove(lerroa);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Mesedez, hautatu produktu bat kentzeko.");
+                }
+            };
+
+            eskuinPanela.Controls.Add(kentzekoBotoia);
+            eskuinPanela.Controls.SetChildIndex(kentzekoBotoia, 0);
+
+            // --- HONELA EGIN DAITEKE BI KLIK-EZ KENTZEA ---
+            produktuTaula.CellDoubleClick += (s, e) =>
+            {
+                if (e.RowIndex >= 0 && !produktuTaula.Rows[e.RowIndex].IsNewRow)
+                {
+                    produktuTaula.Rows.RemoveAt(e.RowIndex);
+                }
+            };
 
             eskaeraBotoia = new Button
             {
@@ -44,10 +88,11 @@ namespace TPVBarra
             };
             eskuinPanela.Controls.Add(eskaeraBotoia);
 
+            // Eskubiko mahai botoia
             Button mahaiaBotoia = new Button
             {
                 Name = "mahaiaBotoia",
-                Text = "Aukeratu mahaia",
+                Text = "Editatu mahaia",
                 Height = 50,
                 Dock = DockStyle.Top,
                 BackColor = Color.DarkBlue,
@@ -138,23 +183,56 @@ namespace TPVBarra
                 }
             };
 
-            this.Shown += async (s, e) => { await KargatuKategoriak(); };
-
-            this.DoubleBuffered = true;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.WindowState = FormWindowState.Maximized;
-            this.Text = "TPV Barra - Orria Nagusia";
+            
 
             EguneratuPanelak();
 
             this.Resize += (s, e) =>
             {
-                EguneratuPanelak();
-                eguneratuGoikoPanela();
+                if (!IsHandleCreated) return; EguneratuPanelak(); eguneratuGoikoPanela();
             };
+
+            ErakutsiBotoiaAukeratuMahaia();
         }
+
+        private void ErakutsiBotoiaAukeratuMahaia()
+        {
+            if (erdiaBehean.Controls.OfType<Button>().Any(b => b.Name == "erdiaMahaiaBotoia"))
+                return;
+
+            Button mahaiaBeheanBotoia = new Button
+            {
+                Name = "erdiaMahaiaBotoia",
+                Text = "Aukeratu mahaia",
+                BackColor = Color.DarkBlue,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold)
+            };
+
+            erdiaBehean.Controls.Add(mahaiaBeheanBotoia);
+
+            mahaiaBeheanBotoia.Width = erdiaBehean.ClientSize.Width;
+            mahaiaBeheanBotoia.Height = erdiaBehean.ClientSize.Height;
+
+
+            erdiaBehean.Resize += (s, e) =>
+            {
+                if (_mahaiaIdAukeratua == null)
+                {
+                    mahaiaBeheanBotoia.Width = erdiaBehean.ClientSize.Width;
+                    mahaiaBeheanBotoia.Height = erdiaBehean.ClientSize.Height;
+                }
+            };
+
+            mahaiaBeheanBotoia.Click += async (s, e) =>
+            {
+                await AukeratuMahaiaAsync();
+            };
+
+            
+        }
+
+
         private async Task AukeratuMahaiaAsync()
         {
             var api = new ApiMahaiak();
@@ -188,18 +266,11 @@ namespace TPVBarra
                 Dock = DockStyle.Bottom
             };
 
-            ok.Click += (s, e) =>
+            ok.Click += async (s, e) =>
             {
                 _mahaiaIdAukeratua = (int)combo.SelectedValue;
                 popup.Close();
-            };
 
-            popup.Controls.Add(combo);
-            popup.Controls.Add(ok);
-            popup.ShowDialog();
-
-            if (_mahaiaIdAukeratua != null)
-            {
                 foreach (Control c in eskuinPanela.Controls)
                 {
                     if (c is Button b && b.Name == "mahaiaBotoia")
@@ -208,7 +279,22 @@ namespace TPVBarra
                         break;
                     }
                 }
-            }
+
+                ezkerraBehean.Controls.Clear();
+                erdiaBehean.Controls.Clear();
+
+                await KargatuKategoriak();
+
+                if (ezkerraBehean.Controls.Count > 0 && ezkerraBehean.Controls[0] is Button firstCat && firstCat.Tag is KategoriaDTO cat)
+                {
+                    await KargatuProduktuakAsync(cat.id);
+                }
+            };
+
+            popup.Controls.Add(combo);
+            popup.Controls.Add(ok);
+            popup.ShowDialog();
+
         }
         private void Orria_resize(object sender, EventArgs e)
         {
@@ -229,6 +315,26 @@ namespace TPVBarra
             var produktuak = await api.LortuProduktuakKategoriagatik(kategoriaId);
 
             erdiaBehean.Controls.Clear();
+
+            if (_mahaiaIdAukeratua == null)
+            {
+                ErakutsiBotoiaAukeratuMahaia();
+            }
+
+            var produktuakBotoiak = erdiaBehean.Controls
+                .OfType<Button>()
+                .Where(b => b.Tag is ProduktuaDTO)
+                .ToList();
+
+            foreach (var b in produktuakBotoiak)
+            {
+                erdiaBehean.Controls.Remove(b);
+            }
+
+            if (_mahaiaIdAukeratua == null)
+            {
+                return;
+            }
 
             int botoiakIlarako = 4;
             int espazioa = 10;
@@ -278,10 +384,17 @@ namespace TPVBarra
                     Height = 80,
                     Margin = new Padding(espazioa),
                     BackColor = Color.AliceBlue,
-                    Font = new Font("Segoe UI", 12, FontStyle.Bold)
+                    Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                    Tag = item
                 };
 
-                botoia.Click += async (s, e) => { await KargatuProduktuakAsync(item.id); };
+                botoia.Click += async (s, e) => {
+
+                    if(botoia.Tag is KategoriaDTO cat)
+                    {
+                        await KargatuProduktuakAsync(cat.id);
+                    }
+                };
 
                 ezkerraBehean.Controls.Add(botoia);
             }
@@ -319,7 +432,7 @@ namespace TPVBarra
             int zabaleraEskuragarri = zabaleraTotala - eskuinPanela.Width;
             int altuera = 200;
 
-            int zabaleraTaula = (int)(zabaleraEskuragarri * 0.65);
+            int zabaleraTaula = (int)(zabaleraEskuragarri * 0.69);
             int zabaleraChat = zabaleraEskuragarri - zabaleraTaula;
 
             produktuTaula.Bounds = new Rectangle(0, 0, zabaleraTaula, altuera);

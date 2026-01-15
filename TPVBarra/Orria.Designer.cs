@@ -52,6 +52,7 @@
 
             // erdiaBehean
             erdiaBehean.BackColor = Color.LightGreen;
+            erdiaBehean.Name = "erdiaBehean";
             erdiaBehean.FlowDirection = FlowDirection.LeftToRight;
             erdiaBehean.WrapContents = true;
             erdiaBehean.AutoScroll = true;
