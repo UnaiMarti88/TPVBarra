@@ -10,7 +10,7 @@ namespace TPVBarra.ApiKonexioak
 {
     public class ApiEskaerak
     {
-        public async Task<ErantzunaDTO<String>> SortuEskaeraAsync(int idLogina, List<EskaeraProduktuaDTO> produktuak, int mahaiaId)
+        public async Task<ErantzunaDTO<String>> SortuEskaeraAsync(int idLogina, List<EskaeraProduktuaDTO> produktuak, int mahaiaId, int komentsalak)
         {
             using var client = new HttpClient();
 
@@ -18,7 +18,7 @@ namespace TPVBarra.ApiKonexioak
             {
                 ErabiltzaileId = idLogina,
                 MahaiaId = mahaiaId,
-                Komensalak = 4,
+                Komensalak = komentsalak,
                 Produktuak = produktuak
             };
 
@@ -31,6 +31,31 @@ namespace TPVBarra.ApiKonexioak
             var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<String>>(responseJson);
             return erantzuna;
         }
+
+        public async Task<int> LortuMahaiKapasitateaAsync(int mahaiaId)
+        {
+            using var client = new HttpClient();
+
+            var response = await client.GetAsync(
+                $"https://localhost:7236/api/eskaerak/mahaiak/{mahaiaId}/kapazitatea"
+            );
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<int>>(responseJson);
+
+            if (erantzuna == null)
+                throw new Exception("Errorea: erantzuna hutsik");
+
+            if (erantzuna.Code != 200)
+                throw new Exception(erantzuna.Message);
+
+            if (erantzuna.Datuak == null || !erantzuna.Datuak.Any())
+                throw new Exception("Mahaiak ez du kapazitaterik");
+
+            return erantzuna.Datuak.First();
+        }
+
 
         public async Task<ErantzunaDTO<EskaeraDTO>> LortuEskaerakAsync(int erabiltzaileId)
         {
@@ -53,25 +78,119 @@ namespace TPVBarra.ApiKonexioak
             return erantzuna;
         }
 
-        public async Task<ErantzunaDTO<EskaeraProduktuaDTO>> LortuEskaeraProduktuakAsync(int eskaeraId)
+        public async Task<ErantzunaDTO<EskaeraLortuDTO>> LortuEskaeraProduktuakAsync(int eskaeraId)
         {
             using var client = new HttpClient();
             var response = await client.GetAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}/produktuak");
             var json = await response.Content.ReadAsStringAsync();
 
-            var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<EskaeraProduktuaDTO>>(json);
+            var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<EskaeraLortuDTO>>(json);
 
             if (erantzuna?.Datuak == null)
             {
-                erantzuna = new ErantzunaDTO<EskaeraProduktuaDTO>
+                erantzuna = new ErantzunaDTO<EskaeraLortuDTO>
                 {
                     Code = (int)response.StatusCode,
                     Message = "Errorea zerbitzarian",
-                    Datuak = new List<EskaeraProduktuaDTO>()
+                    Datuak = new List<EskaeraLortuDTO>()
                 };
             }
 
             return erantzuna;
+        }
+
+        public async Task<ErantzunaDTO<string>> EzabatuEskaeraAsync(int eskaeraId)
+        {
+            using var client = new HttpClient();
+
+            try
+            {
+                var response = await client.DeleteAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}");
+                var json = await response.Content.ReadAsStringAsync();
+
+                var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<string>>(json);
+
+                if (erantzuna == null)
+                {
+                    erantzuna = new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Errorea zerbitzarian",
+                        Datuak = new List<string>()
+                    };
+                }
+
+                return erantzuna;
+            }
+            catch (Exception ex)
+            {
+                return new ErantzunaDTO<string>
+                {
+                    Code = 500,
+                    Message = "Errore bat egon da: " + ex.Message,
+                    Datuak = new List<string>()
+                };
+            }
+        }
+
+        public async Task<ErantzunaDTO<string>> EguneratuEskaeraAsync(int eskaeraId, List<EskaeraProduktuaEditatuDTO> produktuak)
+        {
+            using var client = new HttpClient();
+
+            if (produktuak == null || !produktuak.Any())
+            {
+                return new ErantzunaDTO<string>
+                {
+                    Code = 400,
+                    Message = "Ez duzu produkturik bidali",
+                    Datuak = new List<string>()
+                };
+            }
+
+            var json = JsonConvert.SerializeObject(produktuak);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await client.PutAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}", content);
+                var responseJson = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(responseJson))
+                {
+                    return new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Ez dago erantzunik",
+                        Datuak = new List<string>()
+                    };
+                }
+
+                var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<string>>(responseJson);
+
+                if (erantzuna == null)
+                {
+                    erantzuna = new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Errorea zerbitzarian",
+                        Datuak = new List<string>()
+                    };
+                }
+
+                if (erantzuna.Datuak == null)
+                    erantzuna.Datuak = new List<string>();
+
+                return erantzuna;
+            }
+            catch (Exception ex)
+            {
+                return new ErantzunaDTO<string>
+                {
+                    Code = 500,
+                    Message = "Errore bat egon da: " + ex.Message,
+                    Datuak = new List<string>()
+                };
+            }
         }
 
     }

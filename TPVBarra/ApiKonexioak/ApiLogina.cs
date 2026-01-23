@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TPVBarra.DTOak;
 using TPVBarra.Modeloak;
 
 namespace TPVBarra.ApiKonexioak
@@ -39,9 +40,9 @@ namespace TPVBarra.ApiKonexioak
             }
             String jsonResponse = await response.Content.ReadAsStringAsync();
 
-            var erab = JsonSerializer.Deserialize<Erabiltzailea>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+            var erantzuna = JsonSerializer.Deserialize<ErantzunaDTO<Erabiltzailea>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            return erab;
+            return erantzuna?.Datuak?.FirstOrDefault();
         }
     }
 }

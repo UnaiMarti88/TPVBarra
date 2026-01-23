@@ -70,37 +70,27 @@ namespace TPVBarra
             ApiLogina loginApi = new ApiLogina();
             var erabiltzailea = await loginApi.LoginAsync(izena, pasahitza);
 
-            if (erabiltzailea != null)
+            if (erabiltzailea == null)
             {
-                if (erabiltzailea.ezabatua)
-                {
-                    // datu basean erabiltzailea ezabatua dago
-                    MessageBox.Show("Erabiltzailea ez da aktiboa.");
-                    return;
-                }
-                else
-                {
-                    if (erabiltzailea.rola.id == 2)
-                    {
-                        // zerbitzaria bada
-                        MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
-                        Orria orria = new Orria(erabiltzailea.id,erabiltzailea.erabiltzailea);
-                        this.Hide();
-                        orria.Show();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Ezin duzu aplikaziora sartu zure rola dela eta hitz egin administratzailearekin");
-                        return;
-                    }
-
-                }
-            }
-            else
-            {
-                // Saioa hasteko huts egin du
                 MessageBox.Show("Erabiltzaile izena edo pasahitza okerra da.");
+                return;
             }
+
+            if (erabiltzailea.rola.id != 2)
+            {
+                MessageBox.Show("Ez duzu aplikaziora sartzeko baimenik hitz egin administratzailearekin");
+                return;
+            }
+
+            bool txataDu = erabiltzailea.txat;
+
+            MessageBox.Show("Ongi etorri, " + erabiltzailea.erabiltzailea + "!");
+
+            Orria orria = new Orria(erabiltzailea.id,erabiltzailea.erabiltzailea, txataDu);
+
+            this.Hide();
+            orria.Show();
+
         }
     }
 }

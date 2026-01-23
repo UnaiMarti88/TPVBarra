@@ -9,19 +9,32 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TPVBarra.ApiKonexioak;
 using TPVBarra.DTOak;
+using TPVBarra.Modeloak;
 
 namespace TPVBarra
 {
     public partial class Orria : Form
     {
+        private Button mahaiaBotoia;
+        private Button komentsalKopuruaBotoia;
+        private Button ezabatuEskaeraBotoia;
+        private Button kentzekoBotoia;
+        private Button sortuEskaeraBotoia;
+        private Button eguneratuEskaeraBotoia;
         private int _loginId;
         private string _loginIzena;
-        private int? _mahaiaIdAukeratua = null;
+        private bool _txat;
+        private int? mahaiaIdAukeratua = null;
+        private Label lblErabiltzaileaData;
+        private System.Windows.Forms.Timer timerDataOrdua;
+        private int? eskeraIdAukeratua = null;
+        private int? komensalKopurua = null;
 
-        public Orria(int erabiltzaileId, string erabiltzaileIzena)
+        public Orria(int erabiltzaileId, string erabiltzaileIzena, bool txataDu)
         {
             _loginId = erabiltzaileId;
             _loginIzena = erabiltzaileIzena;
+            _txat = txataDu;
 
             InitializeComponent();
             this.DoubleBuffered = true;
@@ -34,28 +47,38 @@ namespace TPVBarra
             EguneratuPanelak();
             eguneratuGoikoPanela();
 
-            //var chat = new ChatKontrollerra(_loginIzena);
-            //erdiaGoian.Controls.Add(chat);
-            //chat.Dock = DockStyle.Fill;
-
-            Button kentzekoBotoia = new Button
+            if (_txat)
             {
-                Text = "Produktu hau kendu",
+                var chat = new ChatKontrollerra(_loginIzena);
+                erdiaGoian.Controls.Add(chat);
+                chat.Dock = DockStyle.Fill;
+            }
+            
+
+            // Produktu kentzeko botoia
+            kentzekoBotoia = new Button
+            {
+                Text = "Produktua eskaeratik kendu",
                 Height = 60,
                 Dock = DockStyle.Top,
                 BackColor = Color.DarkRed,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Enabled = false
             };
 
-            kentzekoBotoia.Click += (s, e) =>
+            // Produktu kentzeko ekintza
+            kentzekoBotoia.Click += async (s, e) =>
             {
                 if (produktuTaula.SelectedRows.Count > 0)
                 {
                     foreach (DataGridViewRow lerroa in produktuTaula.SelectedRows)
                     {
                         if (!lerroa.IsNewRow)
+                        {
+                            await GordeLogaAsync($"Produktua kendu da: {lerroa.Cells["ProduktuaId"].Value}");
                             produktuTaula.Rows.Remove(lerroa);
+                        }
                     }
                 }
                 else
@@ -76,9 +99,72 @@ namespace TPVBarra
                 }
             };
 
-            eskaeraBotoia = new Button
+            // Ezabatu eskaera botoia
+            ezabatuEskaeraBotoia = new Button
             {
-                Name = "eskaeraBotoia",
+                Name = "ezabatuEskaeraBotoia",
+                Text = "Ezabatu eskaera",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkRed,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Enabled = false
+            };
+
+            eskuinPanela.Controls.Add(ezabatuEskaeraBotoia);
+            eskuinPanela.Controls.SetChildIndex(ezabatuEskaeraBotoia, 3);
+
+            // Ezabatu eskaera ekintza
+            ezabatuEskaeraBotoia.Click += async (s, e) =>
+            {
+                if (eskeraIdAukeratua == null)
+                {
+                    MessageBox.Show("Lehenengo eskaera bat kargatu behar duzu ezabatzeko.");
+                    return;
+                }
+
+                var api = new ApiEskaerak();
+                try
+                {
+                    var erantzuna = await api.EzabatuEskaeraAsync(eskeraIdAukeratua.Value);
+
+                    if (erantzuna.Code == 200)
+                    {
+                        await GordeLogaAsync($"Eskaera ezabatu da. Eskaera ID: {eskeraIdAukeratua}");
+                        MessageBox.Show("Eskaera ezabatu da arrakastaz!");
+
+                        produktuTaula.Rows.Clear();
+
+                        eskeraIdAukeratua = null;
+                        komensalKopurua = null;
+                        mahaiaIdAukeratua = null;
+
+                        mahaiaBotoia.Enabled = false;
+                        komentsalKopuruaBotoia.Enabled = false;
+                        ezabatuEskaeraBotoia.Enabled = false;
+                        kentzekoBotoia.Enabled = false;
+                        eguneratuEskaeraBotoia.Enabled = false;
+
+                        sortuEskaeraBotoia.Enabled = true;
+
+                        ErakutsiBotoiaAukeratuMahaia();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Errorea: {erantzuna.Message}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Arazoa: " + ex.Message);
+                }
+            };
+
+            // Sortu eskaera botoia
+            sortuEskaeraBotoia = new Button
+            {
+                Name = "sortuEskaeraBotoia",
                 Text = "Sortu eskaera",
                 Height = 60,
                 Dock = DockStyle.Top,
@@ -86,28 +172,30 @@ namespace TPVBarra
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold)
             };
-            eskuinPanela.Controls.Add(eskaeraBotoia);
+            eskuinPanela.Controls.Add(sortuEskaeraBotoia);
 
             // Eskubiko mahai botoia
-            Button mahaiaBotoia = new Button
+            mahaiaBotoia = new Button
             {
                 Name = "mahaiaBotoia",
                 Text = "Editatu mahaia",
-                Height = 50,
+                Height = 60,
                 Dock = DockStyle.Top,
                 BackColor = Color.DarkBlue,
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 11, FontStyle.Bold)
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Enabled = false
             };
 
             eskuinPanela.Controls.Add(mahaiaBotoia);
             eskuinPanela.Controls.SetChildIndex(mahaiaBotoia, 1);
 
+            // Kargatu eskaera botoia
             Button eskearaBotoia = new Button
             {
                 Name = "eskearaBotoia",
                 Text = "Kargatu eskaera",
-                Height = 50,
+                Height = 60,
                 Dock = DockStyle.Top,
                 BackColor = Color.DarkOrange,
                 ForeColor = Color.White,
@@ -117,101 +205,213 @@ namespace TPVBarra
             eskuinPanela.Controls.Add(eskearaBotoia);
             eskuinPanela.Controls.SetChildIndex(eskearaBotoia, 2);
 
+            // Kargatu eskaera ekintza
             eskearaBotoia.Click += async (s, e) =>
             {
                 var api = new ApiEskaerak();
-                var erantzunaEskaerak = await api.LortuEskaerakAsync(_loginId);
 
-                if (erantzunaEskaerak.Code != 200 || erantzunaEskaerak.Datuak == null || !erantzunaEskaerak.Datuak.Any())
+                eskaeraBotoia.Enabled = false;
+                try
                 {
-                    MessageBox.Show(erantzunaEskaerak.Message ?? "Ez dago eskaera existitzen.");
-                    return;
-                }
+                    var erantzunaEskaerak = await api.LortuEskaerakAsync(_loginId);
 
-                Form popup = new Form
-                {
-                    Text = "Eskaera aukeratu",
-                    Size = new Size(400, 200),
-                    StartPosition = FormStartPosition.CenterParent
-                };
-
-                ComboBox combo = new ComboBox
-                {
-                    DataSource = erantzunaEskaerak.Datuak,
-                    DisplayMember = "Izena",
-                    ValueMember = "Id",
-                    Dock = DockStyle.Top,
-                    DropDownStyle = ComboBoxStyle.DropDownList
-                };
-
-                Button ok = new Button
-                {
-                    Text = "Kargatu",
-                    Dock = DockStyle.Bottom
-                };
-
-                ok.Click += async (sender2, e2) =>
-                {
-                    int eskaeraId = (int)combo.SelectedValue;
-                    popup.Close();
-
-                    produktuTaula.Rows.Clear();
-
-                    var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskaeraId);
-
-                    if (erantzunaProduktuak.Code != 200 || erantzunaProduktuak.Datuak.Count == 0)
+                    if (erantzunaEskaerak.Code != 200 || erantzunaEskaerak.Datuak.Count == 0)
                     {
-                        MessageBox.Show(erantzunaProduktuak.Message ?? "Errorea produktuak lortzean");
+                        MessageBox.Show("Ez dago eskaera existitzen.");
                         return;
                     }
 
-                    foreach (var p in erantzunaProduktuak.Datuak)
+                    Form popup = new Form
                     {
-                        produktuTaula.Rows.Add(p.ProduktuaId, p.ProduktuaIzena, p.PrezioUnitarioa);
-                    }
-                };
+                        Text = "Eskaera aukeratu",
+                        Size = new Size(400, 200),
+                        StartPosition = FormStartPosition.CenterParent
+                    };
 
-                popup.Controls.Add(combo);
-                popup.Controls.Add(ok);
-                popup.ShowDialog();
+                    ComboBox combo = new ComboBox
+                    {
+                        DataSource = erantzunaEskaerak.Datuak,
+                        DisplayMember = "Izena",
+                        ValueMember = "Id",
+                        Dock = DockStyle.Top,
+                        DropDownStyle = ComboBoxStyle.DropDownList
+                    };
+
+                    Button ok = new Button
+                    {
+                        Text = "Kargatu",
+                        Height = 40,
+                        Dock = DockStyle.Bottom
+                    };
+                    ok.Click += async (sender2, e2) =>
+                    {
+                        if (combo.SelectedItem is not EskaeraDTO eskaera)
+                        {
+                            MessageBox.Show("Ez duzu eskaera bat aukeratu.");
+                            return;
+                        }
+
+                        eskeraIdAukeratua = eskaera.Id;
+                        mahaiaIdAukeratua = eskaera.MahaiaId;
+
+                        popup.Close();
+
+                        produktuTaula.Rows.Clear();
+
+                        var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskeraIdAukeratua.Value);
+
+                        foreach (var p in erantzunaProduktuak.Datuak)
+                        {
+                            for (int i = 0; i < p.Kantitatea; i++)
+                                produktuTaula.Rows.Add(p.ProduktuaId, p.ProduktuaIzena, p.PrezioUnitarioa);
+                        }
+                        await AktibatuModuMahaiaAsync();
+
+                        mahaiaBotoia.Enabled = true;
+                        komentsalKopuruaBotoia.Enabled = true;
+                        ezabatuEskaeraBotoia.Enabled = true;
+                        kentzekoBotoia.Enabled = true;
+                        eguneratuEskaeraBotoia.Enabled = true;
+
+                        sortuEskaeraBotoia.Enabled = false;
+                    };
+
+                    popup.Controls.Add(combo);
+                    popup.Controls.Add(ok);
+                    popup.ShowDialog();
+
+                }finally
+                {
+                    eskaeraBotoia.Enabled = true;
+                }
             };
 
+            // Mahaia editatzeko botoia
             mahaiaBotoia.Click += async (s, e) =>
             {
                 await AukeratuMahaiaAsync();
             };
 
-            eskaeraBotoia.Click += async (s, e) =>
+            // Komentsal kopurua botoia
+            komentsalKopuruaBotoia = new Button
+            {
+                Name = "komentsalKopuruaBotoia",
+                Text = "Komentsal kopurua",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkSlateBlue,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                Enabled = false
+            };
+
+            eskuinPanela.Controls.Add(komentsalKopuruaBotoia);
+            eskuinPanela.Controls.SetChildIndex(komentsalKopuruaBotoia, 1);
+
+            // Komentsal kopurua ekintza
+            komentsalKopuruaBotoia.Click += async (s, e) =>
             {
                 var api = new ApiEskaerak();
-                var produktuak = new List<EskaeraProduktuaDTO>();
+
+                if (mahaiaIdAukeratua == null)
+                {
+                    MessageBox.Show("Lehenengo mahaia aukeratu behar duzu.");
+                    return;
+                }
+
+                int mahaiaId = mahaiaIdAukeratua.Value;
+
+                int maxKomensalak;
+                try
+                {
+                    maxKomensalak = await api.LortuMahaiKapasitateaAsync(mahaiaId);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Errorea mahaiaren datuak lortzean:\n" + ex.Message);
+                    return;
+                }
+
+                if (maxKomensalak <= 0)
+                {
+                    MessageBox.Show("Mahai honek ez du kapazitate egokirik.");
+                    return;
+                }
+
+                Form inputForm = new Form()
+                {
+                    Width = 250,
+                    Height = 150,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    MaximizeBox = false,
+                    MinimizeBox = false,
+                    ShowIcon = false,
+                    Text = "Komentsal kopurua",
+                    StartPosition = FormStartPosition.CenterParent
+                };
+
+                NumericUpDown numeric = new NumericUpDown()
+                {
+                    Minimum = 1,
+                    Maximum = maxKomensalak,
+                    Value = 1,
+                    Location = new Point(50, 20),
+                    Width = 120
+                };
+                inputForm.Controls.Add(numeric);
+
+                Button okButton = new Button()
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(50, 60),
+                    Width = 80
+                };
+                inputForm.Controls.Add(okButton);
+
+                inputForm.AcceptButton = okButton;
+
+                if (inputForm.ShowDialog() == DialogResult.OK)
+                {
+                    komensalKopurua = (int)numeric.Value;
+                    await GordeLogaAsync($"Komentsal kopurua aukeratua: {komensalKopurua}");
+                    MessageBox.Show($"Komentsal kopurua aukeratua: {komensalKopurua}");
+                }
+            };
+
+
+            // Sortu eskaera ekintza
+            sortuEskaeraBotoia.Click += async (s, e) =>
+            {
+                var api = new ApiEskaerak();
+                var produktuakDict = new Dictionary<int, EskaeraProduktuaDTO>();
 
                 foreach (DataGridViewRow row in produktuTaula.Rows)
                 {
                     if (row.IsNewRow) continue;
 
-                    var produktuaIdValue = row.Cells["ProduktuaId"].Value;
-                    var prezioaValue = row.Cells["Prezioa"].Value;
-
-                    if (produktuaIdValue == null || produktuaIdValue == DBNull.Value)
-                    {
-                        MessageBox.Show("ProduktuId hutsik dago.");
+                    if (row.Cells["ProduktuaId"].Value == null || row.Cells["Prezioa"].Value == null)
                         continue;
-                    }
 
-                    if (prezioaValue == null || prezioaValue == DBNull.Value)
-                    {
-                        MessageBox.Show($"Prezioa hutsik dago ProduktuaId = {produktuaIdValue}");
-                        continue;
-                    }
+                    var produktuaId = Convert.ToInt32(row.Cells["ProduktuaId"].Value);
+                    var prezioa = Convert.ToDecimal(row.Cells["Prezioa"].Value);
 
-                    produktuak.Add(new EskaeraProduktuaDTO
+                    if (produktuakDict.ContainsKey(produktuaId))
                     {
-                        ProduktuaId = Convert.ToInt32(row.Cells["ProduktuaId"].Value),
-                        PrezioUnitarioa = Convert.ToDecimal(row.Cells["Prezioa"].Value)
-                    });
-                    
+                        produktuakDict[produktuaId].Kantitatea++;
+                    }
+                    else
+                    {
+                        produktuakDict[produktuaId] = new EskaeraProduktuaDTO
+                        {
+                            ProduktuaId = produktuaId,
+                            PrezioUnitarioa = prezioa,
+                            Kantitatea = 1
+                        };
+                    }
                 }
+
+                    var produktuak = produktuakDict.Values.ToList();
 
                 if (!produktuak.Any())
                 {
@@ -219,40 +419,133 @@ namespace TPVBarra
                     return;
                 }
 
-                if (_mahaiaIdAukeratua == null)
+                if (mahaiaIdAukeratua == null || komensalKopurua == null)
                 {
-                    MessageBox.Show("Lehenengo mahaia aukeratu behar duzu.");
+                    MessageBox.Show("Lehenengo mahaia eta komentsalak aukeratu behar dituzu.");
                     return;
                 }
 
-                int mahaiaId = _mahaiaIdAukeratua.Value;
+                var erantzuna = await api.SortuEskaeraAsync(_loginId, produktuak, mahaiaIdAukeratua.Value, komensalKopurua.Value);
 
-                try
+                if (erantzuna.Code == 200)
                 {
-                    var erantzuna = await api.SortuEskaeraAsync(_loginId, produktuak, mahaiaId);
-                    
-                    if (erantzuna.Code == 200)
-                    {
-                        MessageBox.Show("Eskaera sortu da arrakastaz!");
-                        produktuTaula.Rows.Clear();
-                    }
-                    else
-                    {
-                        var produktuakStockGabe =
-                            erantzuna.Datuak != null &&
-                            erantzuna.Datuak.Any()
-                                ? string.Join(", ", erantzuna.Datuak)
-                    :           "ezezagunak";
+                    await GordeLogaAsync($"Eskaera sortu da. Mahaia: {mahaiaIdAukeratua}, Komentsalak: {komensalKopurua}");
+                    MessageBox.Show("Eskaera sortu da arrakastaz!");
+                    produktuTaula.Rows.Clear();
 
-                        MessageBox.Show(
-                            $"Errorea: {erantzuna.Message}\nProduktuak stock gabe: {produktuakStockGabe}"
-                        );
-                    }
+                    eskeraIdAukeratua = null;
+                    komensalKopurua = null;
+                    mahaiaIdAukeratua = null;
+
+                    mahaiaBotoia.Enabled = false;
+                    komentsalKopuruaBotoia.Enabled = false;
+                    ezabatuEskaeraBotoia.Enabled = false;
+                    kentzekoBotoia.Enabled = false;
+
+                    ezkerraBehean.Controls.Clear();
+                    erdiaBehean.Controls.Clear();
+
+                    ErakutsiBotoiaAukeratuMahaia();
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show("Arazoa: " + ex.Message);
+                    var produktuakStockGabe = erantzuna.Datuak != null && erantzuna.Datuak.Any() ? string.Join(", ", erantzuna.Datuak) : "ezezagunak";
+                    MessageBox.Show($"Errorea: {erantzuna.Message}\nProduktuak stock gabe: {produktuakStockGabe}");
+
                 }
+            };
+
+            eguneratuEskaeraBotoia = new Button
+            {
+                Name = "eguneratuEskaeraBotoia",
+                Text = "Eguneratu eskaera",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkGreen,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Enabled = false
+            };
+
+            eskuinPanela.Controls.Add(eguneratuEskaeraBotoia);
+            eskuinPanela.Controls.SetChildIndex(eguneratuEskaeraBotoia, 4);
+
+            // Eguneratu eskaera ekintza
+            eguneratuEskaeraBotoia.Click += async (s, e) =>
+            {
+                if (eskeraIdAukeratua == null)
+                {
+                    MessageBox.Show("Lehenengo eskaera aukeratu behar duzu.");
+                    return;
+                }
+
+                var api = new ApiEskaerak();
+                var produktuak = new List<EskaeraProduktuaEditatuDTO>();
+
+                foreach (DataGridViewRow row in produktuTaula.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    if (row.Cells["ProduktuaId"].Value == null || row.Cells["Prezioa"].Value == null)
+                        continue;
+
+                    if (!int.TryParse(row.Cells["ProduktuaId"].Value.ToString(), out int produktuaId))
+                        continue;
+
+                    produktuak.Add(new EskaeraProduktuaEditatuDTO
+                    {
+                        ProduktuaId = produktuaId,
+                        Kantitatea = 1
+                    });
+                }
+
+                produktuak = produktuak
+                    .GroupBy(p => p.ProduktuaId)
+                    .Select(g => new EskaeraProduktuaEditatuDTO
+                    {
+                        ProduktuaId = g.Key,
+                        Kantitatea = g.Sum(x => x.Kantitatea)
+                    })
+                    .ToList();
+
+                if (!produktuak.Any())
+                {
+                    MessageBox.Show("Ez duzu produkturik aukeratu.");
+                    return;
+                }
+
+                var erantzuna = await api.EguneratuEskaeraAsync(eskeraIdAukeratua.Value, produktuak);
+
+                if (erantzuna.Code == 200)
+                {
+                    await GordeLogaAsync($"Eskaera eguneratu da. Eskaera ID: {eskeraIdAukeratua}");
+                    MessageBox.Show("Eskaera eguneratu da arrakastaz!");
+                    produktuTaula.Rows.Clear();
+                    eskeraIdAukeratua = null;
+                    ezabatuEskaeraBotoia.Enabled = false;
+                    kentzekoBotoia.Enabled = false;
+                    eguneratuEskaeraBotoia.Enabled = false;
+
+                    ezkerraBehean.Controls.Clear();
+                    erdiaBehean.Controls.Clear();
+                    ErakutsiBotoiaAukeratuMahaia();
+                }else if (erantzuna.Code == 400)
+                {
+                    var produktuakStockGabe = erantzuna.Datuak != null && erantzuna.Datuak.Any() ? string.Join(", ", erantzuna.Datuak) : "ezezagunak";
+
+                    MessageBox.Show(
+                        $"Stock arazoa:\n{erantzuna.Message}\n\nProduktuak: {produktuakStockGabe}");
+
+                }
+                else if (erantzuna.Code == 404)
+                {
+                    MessageBox.Show("Eskaera ez da existitzen.");
+                }
+                else
+                {
+                    MessageBox.Show("Errore orokorra: " + erantzuna.Message);
+                }
+                
             };
 
             EguneratuPanelak();
@@ -267,8 +560,13 @@ namespace TPVBarra
 
         private void ErakutsiBotoiaAukeratuMahaia()
         {
-            if (erdiaBehean.Controls.OfType<Button>().Any(b => b.Name == "erdiaMahaiaBotoia"))
-                return;
+
+            var exist = erdiaBehean.Controls.OfType<Button>().FirstOrDefault(b => b.Name == "erdiaMahaiaBotoia");
+
+            if (exist != null)
+            {
+                erdiaBehean.Controls.Remove(exist);
+            }
 
             Button mahaiaBeheanBotoia = new Button
             {
@@ -287,7 +585,7 @@ namespace TPVBarra
 
             erdiaBehean.Resize += (s, e) =>
             {
-                if (_mahaiaIdAukeratua == null)
+                if (mahaiaIdAukeratua == null)
                 {
                     mahaiaBeheanBotoia.Width = erdiaBehean.ClientSize.Width;
                     mahaiaBeheanBotoia.Height = erdiaBehean.ClientSize.Height;
@@ -299,7 +597,41 @@ namespace TPVBarra
                 await AukeratuMahaiaAsync();
             };
 
-            
+            SortuBehekoInfoPanela();
+        }
+
+        private void SortuBehekoInfoPanela()
+        {
+            Panel behekoPanela = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                BackColor = Color.FromArgb(240, 240, 240),
+                Padding = new Padding(10)
+            };
+
+            lblErabiltzaileaData = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9, FontStyle.Bold)
+            };
+
+            behekoPanela.Controls.Add(lblErabiltzaileaData);
+            eskuinPanela.Controls.Add(behekoPanela);
+
+            timerDataOrdua = new System.Windows.Forms.Timer
+            {
+                Interval = 1000
+            };
+
+            timerDataOrdua.Tick += (s, e) =>
+            {
+                lblErabiltzaileaData.Text =
+                    $"Erabiltzailea: {_loginIzena}\n{DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+            };
+
+            timerDataOrdua.Start();
         }
 
         private async Task AukeratuMahaiaAsync()
@@ -332,12 +664,15 @@ namespace TPVBarra
             Button ok = new Button
             {
                 Text = "Aukeratu",
+                Height = 60,
                 Dock = DockStyle.Bottom
             };
 
             ok.Click += async (s, e) =>
             {
-                _mahaiaIdAukeratua = (int)combo.SelectedValue;
+
+                mahaiaIdAukeratua = (int)combo.SelectedValue;
+                await GordeLogaAsync($"Mahaia aukeratua: {mahaiaIdAukeratua}");
                 popup.Close();
 
                 foreach (Control c in eskuinPanela.Controls)
@@ -358,12 +693,33 @@ namespace TPVBarra
                 {
                     await KargatuProduktuakAsync(cat.id);
                 }
+
+                mahaiaBotoia.Enabled = true;
+                komentsalKopuruaBotoia.Enabled = true;
+                sortuEskaeraBotoia.Enabled = true;
+                kentzekoBotoia.Enabled = true;
+
             };
 
             popup.Controls.Add(combo);
             popup.Controls.Add(ok);
             popup.ShowDialog();
 
+        }
+
+        private async Task AktibatuModuMahaiaAsync()
+        {
+            ezkerraBehean.Controls.Clear();
+            erdiaBehean.Controls.Clear();
+
+            await KargatuKategoriak();
+
+            if (ezkerraBehean.Controls.Count > 0 &&
+                ezkerraBehean.Controls[0] is Button firstCat &&
+                firstCat.Tag is KategoriaDTO cat)
+            {
+                await KargatuProduktuakAsync(cat.id);
+            }
         }
         private void Orria_resize(object sender, EventArgs e)
         {
@@ -385,23 +741,9 @@ namespace TPVBarra
 
             erdiaBehean.Controls.Clear();
 
-            if (_mahaiaIdAukeratua == null)
+            if (mahaiaIdAukeratua == null)
             {
                 ErakutsiBotoiaAukeratuMahaia();
-            }
-
-            var produktuakBotoiak = erdiaBehean.Controls
-                .OfType<Button>()
-                .Where(b => b.Tag is ProduktuaDTO)
-                .ToList();
-
-            foreach (var b in produktuakBotoiak)
-            {
-                erdiaBehean.Controls.Remove(b);
-            }
-
-            if (_mahaiaIdAukeratua == null)
-            {
                 return;
             }
 
@@ -420,12 +762,14 @@ namespace TPVBarra
                     Height = botoiAltuera,
                     Margin = new Padding(espazioa),
                     BackColor = Color.LightYellow,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    Tag = produktua
                 };
 
-                botoia.Click += (s, e) =>
+                botoia.Click += async (s, e) =>
                 {
                     produktuTaula.Rows.Add(produktua.id, produktua.izena, produktua.prezioa);
+                    await GordeLogaAsync($"Produktua gehitu da: {produktua.id}, Mahaia:" + mahaiaIdAukeratua);
                 };
 
                 erdiaBehean.Controls.Add(botoia);
@@ -468,6 +812,36 @@ namespace TPVBarra
                 ezkerraBehean.Controls.Add(botoia);
             }
         }
+
+        private async Task GordeLogaAsync(string ekintza)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                client.BaseAddress = new Uri("https://localhost:7236/");
+
+                var log = new
+                {
+                    Erabiltzailea = _loginId,
+                    Ekintza = ekintza
+                };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(log);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("api/LogKontrollerra/gorde", content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Errorea loga gordetzean: " + response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Errorea loga bidaltzean: " + ex.Message);
+            }
+        }
+
+
 
         private void EguneratuEskuinPanelak()
         {

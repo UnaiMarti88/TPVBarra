@@ -15,6 +15,12 @@ namespace TPVBarra.ApiKonexioak
             using var client = new HttpClient();
 
             var response = await client.GetAsync("https://localhost:7236/api/mahaiak/libre");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return new List<MahaiaDTO>();
+            }
+
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
