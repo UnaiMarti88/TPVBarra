@@ -19,6 +19,7 @@ namespace TPVBarra.ApiKonexioak
                 ErabiltzaileId = idLogina,
                 MahaiaId = mahaiaId,
                 Komensalak = komentsalak,
+                SukaldeaEgoera = "zain",
                 Produktuak = produktuak
             };
 

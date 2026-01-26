@@ -29,6 +29,7 @@ namespace TPVBarra
         private System.Windows.Forms.Timer timerDataOrdua;
         private int? eskeraIdAukeratua = null;
         private int? komensalKopurua = null;
+        private Label lblEgoera;
 
         public Orria(int erabiltzaileId, string erabiltzaileIzena, bool txataDu)
         {
@@ -139,6 +140,7 @@ namespace TPVBarra
                         eskeraIdAukeratua = null;
                         komensalKopurua = null;
                         mahaiaIdAukeratua = null;
+                        EguneratuEgoeraTextua(null);
 
                         mahaiaBotoia.Enabled = false;
                         komentsalKopuruaBotoia.Enabled = false;
@@ -253,6 +255,7 @@ namespace TPVBarra
 
                         eskeraIdAukeratua = eskaera.Id;
                         mahaiaIdAukeratua = eskaera.MahaiaId;
+                        EguneratuEgoeraTextua(eskaera.SukaldeaEgoera);
 
                         popup.Close();
 
@@ -436,6 +439,7 @@ namespace TPVBarra
                     eskeraIdAukeratua = null;
                     komensalKopurua = null;
                     mahaiaIdAukeratua = null;
+                    EguneratuEgoeraTextua(null);
 
                     mahaiaBotoia.Enabled = false;
                     komentsalKopuruaBotoia.Enabled = false;
@@ -469,6 +473,8 @@ namespace TPVBarra
 
             eskuinPanela.Controls.Add(eguneratuEskaeraBotoia);
             eskuinPanela.Controls.SetChildIndex(eguneratuEskaeraBotoia, 4);
+
+            SortuEgoeraPanela();
 
             // Eguneratu eskaera ekintza
             eguneratuEskaeraBotoia.Click += async (s, e) =>
@@ -520,15 +526,26 @@ namespace TPVBarra
                 {
                     await GordeLogaAsync($"Eskaera eguneratu da. Eskaera ID: {eskeraIdAukeratua}");
                     MessageBox.Show("Eskaera eguneratu da arrakastaz!");
-                    produktuTaula.Rows.Clear();
-                    eskeraIdAukeratua = null;
-                    ezabatuEskaeraBotoia.Enabled = false;
-                    kentzekoBotoia.Enabled = false;
-                    eguneratuEskaeraBotoia.Enabled = false;
+                    if (eskeraIdAukeratua != null)
+                    {
+                        var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskeraIdAukeratua.Value);
+                        produktuTaula.Rows.Clear();
+                        foreach (var p in erantzunaProduktuak.Datuak)
+                        {
+                            for (int i = 0; i < p.Kantitatea; i++)
+                                produktuTaula.Rows.Add(p.ProduktuaId, p.ProduktuaIzena, p.PrezioUnitarioa);
+                        }
 
-                    ezkerraBehean.Controls.Clear();
-                    erdiaBehean.Controls.Clear();
-                    ErakutsiBotoiaAukeratuMahaia();
+                        var erantzunaEskaerak = await api.LortuEskaerakAsync(_loginId);
+                        if (erantzunaEskaerak.Code == 200)
+                        {
+                            var eskaera = erantzunaEskaerak.Datuak?.FirstOrDefault(x => x.Id == eskeraIdAukeratua.Value);
+                            if (eskaera != null)
+                            {
+                                EguneratuEgoeraTextua(eskaera.SukaldeaEgoera);
+                            }
+                        }
+                    }
                 }else if (erantzuna.Code == 400)
                 {
                     var produktuakStockGabe = erantzuna.Datuak != null && erantzuna.Datuak.Any() ? string.Join(", ", erantzuna.Datuak) : "ezezagunak";
@@ -598,6 +615,36 @@ namespace TPVBarra
             };
 
             SortuBehekoInfoPanela();
+        }
+
+        private void SortuEgoeraPanela()
+        {
+            Panel egoeraPanela = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 70,
+                BackColor = Color.FromArgb(255, 245, 200),
+                Padding = new Padding(10)
+            };
+
+            lblEgoera = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold)
+            };
+
+            egoeraPanela.Controls.Add(lblEgoera);
+            eskuinPanela.Controls.Add(egoeraPanela);
+            eskuinPanela.Controls.SetChildIndex(egoeraPanela, 0);
+
+            EguneratuEgoeraTextua(null);
+        }
+
+        private void EguneratuEgoeraTextua(string? egoera)
+        {
+            var testua = string.IsNullOrWhiteSpace(egoera) ? "-" : egoera;
+            lblEgoera.Text = $"Egoera: {testua}";
         }
 
         private void SortuBehekoInfoPanela()

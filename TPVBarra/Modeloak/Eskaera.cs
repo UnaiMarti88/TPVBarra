@@ -13,6 +13,7 @@ namespace TPVBarra.Modeloak
         public virtual Erabiltzailea erabiltzailea { get; set; }
         public virtual int komentsalak { get; set; }
         public virtual string egoera { get; set; }
+        public virtual string sukaldeaEgoera { get; set; }
         public virtual DateTime sortzeData { get; set; } = DateTime.Now;
         public virtual DateTime itxieraData { get; set; }
         public virtual Erreserba erreserba { get; set; }
