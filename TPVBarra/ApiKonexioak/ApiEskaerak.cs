@@ -194,5 +194,133 @@ namespace TPVBarra.ApiKonexioak
             }
         }
 
+        public async Task<ErantzunaDTO<string>> OrdainduEskaeraAsync(int eskaeraId)
+        {
+            using var client = new HttpClient();
+
+            try
+            {
+                var response = await client.PostAsync(
+                    $"https://localhost:7236/api/eskaerak/{eskaeraId}/ordainduEskaera",
+                    null
+                );
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Ez da erantzunik jaso",
+                        Datuak = new List<string>()
+                    };
+                }
+
+                var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<string>>(json);
+
+                if (erantzuna == null)
+                {
+                    return new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Errorea zerbitzarian",
+                        Datuak = new List<string>()
+                    };
+                }
+
+                return erantzuna;
+            }
+            catch (Exception ex)
+            {
+                return new ErantzunaDTO<string>
+                {
+                    Code = 500,
+                    Message = "Errorea ordaintzera bidaltzean: " + ex.Message,
+                    Datuak = new List<string>()
+                };
+            }
+        }
+
+        public async Task<ErantzunaDTO<string>> SortuFakturaAsync(int eskaeraId)
+        {
+            using var client = new HttpClient();
+
+            try
+            {
+                var response = await client.PostAsync(
+                    $"https://localhost:7236/api/eskaerak/{eskaeraId}/sortuFaktura",
+                    null
+                );
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(json))
+                    return new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Ez du erantzunik jaso zerbitzaritik",
+                        Datuak = new List<string>()
+                    };
+
+                var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<string>>(json);
+
+                if (erantzuna == null)
+                    return new ErantzunaDTO<string>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Arazoa zerbitzariarekin",
+                        Datuak = new List<string>()
+                    };
+
+                return erantzuna;
+            }
+            catch (Exception ex)
+            {
+                return new ErantzunaDTO<string>
+                {
+                    Code = 500,
+                    Message = "Arazoa faktura sortzean: " + ex.Message,
+                    Datuak = new List<string>()
+                };
+            }
+        }
+
+        public async Task<ErantzunaDTO<EskaeraDTO>> LortuEskaerakOrdaintzekoAsync()
+        {
+            using var client = new HttpClient();
+            try
+            {
+                var response = await client.GetAsync("https://localhost:7236/api/eskaerak/ordainketa-pendiente");
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(json))
+                    return new ErantzunaDTO<EskaeraDTO>
+                    {
+                        Code = (int)response.StatusCode,
+                        Message = "Ez da zerbitzariaren erantzunik jaso",
+                        Datuak = new List<EskaeraDTO>()
+                    };
+
+                var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<EskaeraDTO>>(json);
+
+                return erantzuna ?? new ErantzunaDTO<EskaeraDTO>
+                {
+                    Code = (int)response.StatusCode,
+                    Message = "Arazoa zerbitzarian",
+                    Datuak = new List<EskaeraDTO>()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ErantzunaDTO<EskaeraDTO>
+                {
+                    Code = 500,
+                    Message = "Arazoa eskaerak jasotzean: " + ex.Message,
+                    Datuak = new List<EskaeraDTO>()
+                };
+            }
+        }
+
     }
 }

@@ -21,6 +21,8 @@ namespace TPVBarra
         private Button kentzekoBotoia;
         private Button sortuEskaeraBotoia;
         private Button eguneratuEskaeraBotoia;
+        private Button eskaeraOrdainduBotoia;
+        private Button sortuFakturaBotoia;
         private int _loginId;
         private string _loginIzena;
         private bool _txat;
@@ -54,7 +56,26 @@ namespace TPVBarra
                 erdiaGoian.Controls.Add(chat);
                 chat.Dock = DockStyle.Fill;
             }
-            
+
+            eskaeraOrdainduBotoia = new Button
+            {
+                Name = "eskaeraOrdainduBotoia",
+                Text = "Ordaindu eskaera",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkGoldenrod,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Enabled = false
+            };
+
+            eskuinPanela.Controls.Add(eskaeraOrdainduBotoia);
+            eskuinPanela.Controls.SetChildIndex(eskaeraOrdainduBotoia, 0);
+
+            eskaeraOrdainduBotoia.Click += async (s, e) =>
+            {
+                await ordaintzeraBidali();
+            };
 
             // Produktu kentzeko botoia
             kentzekoBotoia = new Button
@@ -137,19 +158,7 @@ namespace TPVBarra
 
                         produktuTaula.Rows.Clear();
 
-                        eskeraIdAukeratua = null;
-                        komensalKopurua = null;
-                        mahaiaIdAukeratua = null;
-                        EguneratuEgoeraTextua(null);
-
-                        mahaiaBotoia.Enabled = false;
-                        komentsalKopuruaBotoia.Enabled = false;
-                        ezabatuEskaeraBotoia.Enabled = false;
-                        kentzekoBotoia.Enabled = false;
-                        eguneratuEskaeraBotoia.Enabled = false;
-
-                        sortuEskaeraBotoia.Enabled = true;
-
+                        BotoiakHasieran();
                         ErakutsiBotoiaAukeratuMahaia();
                     }
                     else
@@ -160,6 +169,95 @@ namespace TPVBarra
                 catch (Exception ex)
                 {
                     MessageBox.Show("Arazoa: " + ex.Message);
+                }
+            };
+
+            sortuFakturaBotoia = new Button
+            {
+                Name = "sortuFakturaBotoia",
+                Text = "Sortu Faktura",
+                Height = 60,
+                Dock = DockStyle.Top,
+                BackColor = Color.DarkGoldenrod,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Enabled = false
+            };
+
+            eskuinPanela.Controls.Add(sortuFakturaBotoia);
+            eskuinPanela.Controls.SetChildIndex(sortuFakturaBotoia, 0);
+
+            sortuFakturaBotoia.Click += async (s, e) =>
+            {
+                var api = new ApiEskaerak();
+                sortuFakturaBotoia.Enabled = false;
+
+                try
+                {
+                    var erantzunaEskaerak = await api.LortuEskaerakOrdaintzekoAsync();
+                    if (erantzunaEskaerak.Code != 200 || erantzunaEskaerak.Datuak.Count == 0)
+                    {
+                        MessageBox.Show("Ez dago ordainketarako eskaerarik.");
+                        return;
+                    }
+
+                    Form popup = new Form
+                    {
+                        Text = "Eskaera aukeratu fakturarako",
+                        Size = new Size(400, 200),
+                        StartPosition = FormStartPosition.CenterParent
+                    };
+
+                    ComboBox combo = new ComboBox
+                    {
+                        DataSource = erantzunaEskaerak.Datuak,
+                        DisplayMember = "Izena",
+                        ValueMember = "Id",
+                        Dock = DockStyle.Top,
+                        DropDownStyle = ComboBoxStyle.DropDownList
+                    };
+
+                    Button ok = new Button
+                    {
+                        Text = "Sortu faktura",
+                        Height = 40,
+                        Dock = DockStyle.Bottom
+                    };
+
+                    ok.Click += async (sender2, e2) =>
+                    {
+                        if (combo.SelectedItem is not EskaeraDTO eskaera)
+                        {
+                            MessageBox.Show("Ez duzu eskaera bat aukeratu.");
+                            return;
+                        }
+
+                        var erantzunaFaktura = await api.SortuFakturaAsync(eskaera.Id);
+
+                        if (erantzunaFaktura.Code == 200)
+                        {
+                            await GordeLogaAsync($"Faktura sortuta. Eskaera: {eskaera.Id}, Mahaia: {eskaera.MahaiaId}");
+
+                            MessageBox.Show("Factura sortu duzu!\n" + string.Join("\n", erantzunaFaktura.Datuak));
+                            popup.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Arazoa faktura sortzean: " + erantzunaFaktura.Message);
+                        }
+                    };
+
+                    popup.Controls.Add(combo);
+                    popup.Controls.Add(ok);
+                    popup.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Errorea faktura sortzean: " + ex.Message);
+                }
+                finally
+                {
+                    sortuFakturaBotoia.Enabled = true;
                 }
             };
 
@@ -257,6 +355,8 @@ namespace TPVBarra
                         mahaiaIdAukeratua = eskaera.MahaiaId;
                         EguneratuEgoeraTextua(eskaera.SukaldeaEgoera);
 
+                        await GordeLogaAsync($"Eskaera aukeratua: {eskeraIdAukeratua}, Mahaia: {mahaiaIdAukeratua}");
+
                         popup.Close();
 
                         produktuTaula.Rows.Clear();
@@ -270,13 +370,7 @@ namespace TPVBarra
                         }
                         await AktibatuModuMahaiaAsync();
 
-                        mahaiaBotoia.Enabled = true;
-                        komentsalKopuruaBotoia.Enabled = true;
-                        ezabatuEskaeraBotoia.Enabled = true;
-                        kentzekoBotoia.Enabled = true;
-                        eguneratuEskaeraBotoia.Enabled = true;
-
-                        sortuEskaeraBotoia.Enabled = false;
+                        BotoiakEskaeraAukeratuta();
                     };
 
                     popup.Controls.Add(combo);
@@ -380,6 +474,7 @@ namespace TPVBarra
                     await GordeLogaAsync($"Komentsal kopurua aukeratua: {komensalKopurua}");
                     MessageBox.Show($"Komentsal kopurua aukeratua: {komensalKopurua}");
                 }
+                BotoiakMahaiaAukeratuta();
             };
 
 
@@ -436,18 +531,9 @@ namespace TPVBarra
                     MessageBox.Show("Eskaera sortu da arrakastaz!");
                     produktuTaula.Rows.Clear();
 
-                    eskeraIdAukeratua = null;
-                    komensalKopurua = null;
-                    mahaiaIdAukeratua = null;
                     EguneratuEgoeraTextua(null);
 
-                    mahaiaBotoia.Enabled = false;
-                    komentsalKopuruaBotoia.Enabled = false;
-                    ezabatuEskaeraBotoia.Enabled = false;
-                    kentzekoBotoia.Enabled = false;
-
-                    ezkerraBehean.Controls.Clear();
-                    erdiaBehean.Controls.Clear();
+                    BotoiakHasieran();
 
                     ErakutsiBotoiaAukeratuMahaia();
                 }
@@ -546,7 +632,9 @@ namespace TPVBarra
                             }
                         }
                     }
-                }else if (erantzuna.Code == 400)
+                    BotoiakEskaeraAukeratuta();
+                }
+                else if (erantzuna.Code == 400)
                 {
                     var produktuakStockGabe = erantzuna.Datuak != null && erantzuna.Datuak.Any() ? string.Join(", ", erantzuna.Datuak) : "ezezagunak";
 
@@ -573,6 +661,33 @@ namespace TPVBarra
             };
 
             ErakutsiBotoiaAukeratuMahaia();
+
+            BotoiakHasieran();
+        }
+
+        private async Task ordaintzeraBidali()
+        {
+            if (eskeraIdAukeratua == null)
+            {
+                MessageBox.Show("Ez dago eskaerarik aukeratuta.");
+                return;
+            }
+
+            var api = new ApiEskaerak();
+
+            var erantzuna = await api.OrdainduEskaeraAsync(eskeraIdAukeratua.Value);
+
+            if (erantzuna.Code == 200)
+            {
+                MessageBox.Show("Eskaera ordaintzera bidali da.");
+                await GordeLogaAsync($"Eskaera ordaindu da. Eskaera ID: {eskeraIdAukeratua}, Mahaia: {mahaiaIdAukeratua}");
+
+                BotoiakEskaeraOrdainduta();
+            }
+            else
+            {
+                MessageBox.Show("Errorea: " + erantzuna.Message);
+            }
         }
 
         private void ErakutsiBotoiaAukeratuMahaia()
@@ -645,6 +760,73 @@ namespace TPVBarra
         {
             var testua = string.IsNullOrWhiteSpace(egoera) ? "-" : egoera;
             lblEgoera.Text = $"Egoera: {testua}";
+        }
+
+        private void BotoiakHasieran()
+        {
+            sortuEskaeraBotoia.Enabled = true;
+            eskaeraBotoia.Enabled = true;
+            sortuFakturaBotoia.Enabled = true;
+            eguneratuEskaeraBotoia.Enabled = false;
+            ezabatuEskaeraBotoia.Enabled = false;
+            kentzekoBotoia.Enabled = false;
+            eskaeraOrdainduBotoia.Enabled = false;
+            mahaiaBotoia.Enabled = false;
+            komentsalKopuruaBotoia.Enabled = false;
+
+            eskeraIdAukeratua = null;
+            mahaiaIdAukeratua = null;
+            komensalKopurua = null;
+            EguneratuEgoeraTextua(null);
+            produktuTaula.Rows.Clear();
+        }
+
+        private void BotoiakEskaeraAukeratuta()
+        {
+            sortuEskaeraBotoia.Enabled = false;
+            eskaeraBotoia.Enabled = true;
+            sortuFakturaBotoia.Enabled = true;
+            eguneratuEskaeraBotoia.Enabled = true;
+            ezabatuEskaeraBotoia.Enabled = true;
+            kentzekoBotoia.Enabled = true;
+            eskaeraOrdainduBotoia.Enabled = true;
+            mahaiaBotoia.Enabled = true;
+            komentsalKopuruaBotoia.Enabled = true;
+
+        }
+
+        private void BotoiakEskaeraOrdainduta()
+        {
+            sortuEskaeraBotoia.Enabled = true;
+            eskaeraBotoia.Enabled = true;
+            sortuFakturaBotoia.Enabled = true;
+            eguneratuEskaeraBotoia.Enabled = false;
+            ezabatuEskaeraBotoia.Enabled = false;
+            kentzekoBotoia.Enabled = false;
+            eskaeraOrdainduBotoia.Enabled = false;
+            mahaiaBotoia.Enabled = false;
+            komentsalKopuruaBotoia.Enabled = false;
+
+            eskeraIdAukeratua = null;
+            mahaiaIdAukeratua = null;
+            komensalKopurua = null;
+            EguneratuEgoeraTextua(null);
+            produktuTaula.Rows.Clear();
+        }
+        private void BotoiakProduktuAukeratu()
+        {
+            sortuEskaeraBotoia.Enabled = true;
+            kentzekoBotoia.Enabled = true;
+
+        }
+
+        private void BotoiakMahaiaAukeratuta()
+        {
+            sortuEskaeraBotoia.Enabled = true;
+            komentsalKopuruaBotoia.Enabled = true;
+            mahaiaBotoia.Enabled = true;
+
+            eskeraIdAukeratua = null;
         }
 
         private void SortuBehekoInfoPanela()
@@ -741,10 +923,7 @@ namespace TPVBarra
                     await KargatuProduktuakAsync(cat.id);
                 }
 
-                mahaiaBotoia.Enabled = true;
-                komentsalKopuruaBotoia.Enabled = true;
-                sortuEskaeraBotoia.Enabled = true;
-                kentzekoBotoia.Enabled = true;
+                BotoiakMahaiaAukeratuta();
 
             };
 
@@ -780,7 +959,6 @@ namespace TPVBarra
             EguneratuErdiEskuinPanelak();
             EguneratuGoikoEzkerPanela();
         }
-
         private async Task KargatuProduktuakAsync(int kategoriaId)
         {
             var api = new ApiProduktuak();
@@ -817,6 +995,7 @@ namespace TPVBarra
                 {
                     produktuTaula.Rows.Add(produktua.id, produktua.izena, produktua.prezioa);
                     await GordeLogaAsync($"Produktua gehitu da: {produktua.id}, Mahaia:" + mahaiaIdAukeratua);
+                    BotoiakProduktuAukeratu();
                 };
 
                 erdiaBehean.Controls.Add(botoia);
@@ -887,8 +1066,6 @@ namespace TPVBarra
                 Console.WriteLine("Errorea loga bidaltzean: " + ex.Message);
             }
         }
-
-
 
         private void EguneratuEskuinPanelak()
         {
