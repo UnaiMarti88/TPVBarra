@@ -1,0 +1,39 @@
+<UserControl x:Class="TPVBarra.ChatKontrollerraWpf"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#F9FAFB" CornerRadius="8" Padding="8">
+            <ListBox x:Name="lstMezuak"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Foreground="#111827" />
+        </Border>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBox x:Name="txtMezua"
+                     Height="36"
+                     MinWidth="220"
+                     Margin="0,0,8,0"
+                     Padding="10,6"
+                     Background="#F9FAFB"
+                     BorderBrush="#E5E7EB"
+                     BorderThickness="1" />
+            <Button x:Name="btnBidali"
+                    Content="Bidali"
+                    Height="36"
+                    Width="90"
+                    Background="#2563EB"
+                    Foreground="White"
+                    BorderThickness="0"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"
+                    Click="BtnBidali_Click" />
+        </StackPanel>
+    </Grid>
+</UserControl>

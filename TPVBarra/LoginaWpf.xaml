@@ -1,0 +1,66 @@
+<Window x:Class="TPVBarra.LoginaWpf"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TPV Barra - Saioa"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Width="900"
+        Height="600"
+        Background="#2563EB">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#3F7AE0" Offset="0" />
+                <GradientStop Color="#2C5AA0" Offset="1" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Border Width="360"
+                Height="380"
+                Background="White"
+                CornerRadius="16"
+                Padding="28"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Border.Effect>
+                <DropShadowEffect Color="#1F2937" BlurRadius="18" ShadowDepth="6" Opacity="0.2" />
+            </Border.Effect>
+
+            <StackPanel>
+                <TextBlock Text="JAUS"
+                           FontSize="34"
+                           FontWeight="Bold"
+                           Foreground="#3F7AE0"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20" />
+
+                <TextBlock Text="Erabiltzailea" FontWeight="SemiBold" Foreground="#374151" />
+                <TextBox x:Name="txtErabiltzailea"
+                         Height="36"
+                         Margin="0,6,0,16"
+                         Padding="10,6"
+                         Background="#F9FAFB"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="1" />
+
+                <TextBlock Text="Pasahitza" FontWeight="SemiBold" Foreground="#374151" />
+                <PasswordBox x:Name="txtPasahitza"
+                             Height="36"
+                             Margin="0,6,0,24"
+                             Padding="10,6"
+                             Background="#F9FAFB"
+                             BorderBrush="#E5E7EB"
+                             BorderThickness="1" />
+
+                <Button Content="Saioa hasi"
+                        Height="44"
+                        Background="#3F7AE0"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="BtnLogin_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

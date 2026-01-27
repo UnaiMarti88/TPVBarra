@@ -1,0 +1,183 @@
+<Window x:Class="TPVBarra.OrriaWpf"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TPV Barra"
+        WindowState="Maximized"
+        Background="#F3F4F6">
+    <Window.Resources>
+        <Style x:Key="AccionButton" TargetType="Button">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Background" Value="#1F2937" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style x:Key="AccionButtonSuccess" TargetType="Button" BasedOn="{StaticResource AccionButton}">
+            <Setter Property="Background" Value="#059669" />
+        </Style>
+        <Style x:Key="AccionButtonWarning" TargetType="Button" BasedOn="{StaticResource AccionButton}">
+            <Setter Property="Background" Value="#D97706" />
+        </Style>
+        <Style x:Key="AccionButtonDanger" TargetType="Button" BasedOn="{StaticResource AccionButton}">
+            <Setter Property="Background" Value="#DC2626" />
+        </Style>
+        <Style x:Key="AccionButtonInfo" TargetType="Button" BasedOn="{StaticResource AccionButton}">
+            <Setter Property="Background" Value="#0EA5E9" />
+        </Style>
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Style="{StaticResource CardBorder}"
+                Margin="0,0,0,12">
+            <DockPanel>
+                <TextBlock Text="TPV Barra"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#111827"
+                           DockPanel.Dock="Left" />
+
+                <StackPanel Orientation="Horizontal"
+                            DockPanel.Dock="Right"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="Erabiltzailea: " Foreground="#6B7280" Margin="0,0,6,0" />
+                    <TextBlock x:Name="lblUsuario"
+                               Foreground="#111827"
+                               FontWeight="SemiBold"
+                               Margin="0,0,16,0" />
+                        <Button Content="Saioa itxi"
+                            Width="90"
+                            Height="30"
+                            Background="#EF4444"
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontWeight="Bold"
+                            Cursor="Hand"
+                            Click="SaioaItxi_Click" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="300" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="3*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,12,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,12,0">
+                        <DataGrid x:Name="dgEskaera"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  HeadersVisibility="Column"
+                                  SelectionMode="Single"
+                                  SelectionUnit="FullRow"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="None">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding ProduktuaId}" Visibility="Collapsed" />
+                                <DataGridTextColumn Header="Produktua" Binding="{Binding Izena}" Width="*" />
+                                <DataGridTextColumn Header="Kantitatea" Binding="{Binding Kantitatea}" Width="90" />
+                                <DataGridTextColumn Header="Prezioa" Binding="{Binding Prezioa, StringFormat=C}" Width="120" />
+                                <DataGridTextColumn Header="Guztira" Binding="{Binding Guztira, StringFormat=C}" Width="120" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                        <ContentControl x:Name="chatHost" />
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,0,12,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,12,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <WrapPanel x:Name="panelCategorias" />
+                        </ScrollViewer>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                        <Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <WrapPanel x:Name="panelProductos" />
+                            </ScrollViewer>
+
+                            <Button x:Name="btnAukeratuMahaia"
+                                    Content="Aukeratu mahaia"
+                                    Width="220"
+                                    Height="48"
+                                    Background="#0EA5E9"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    FontWeight="Bold"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="Collapsed"
+                                    Click="BtnAukeratuMahaia_Click" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                <StackPanel x:Name="accionesPanel" VerticalAlignment="Top">
+                    <TextBlock Text="Ekintzak"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               Foreground="#111827"
+                               Margin="0,0,0,10" />
+
+                    <TextBlock Text="Egoera" FontWeight="SemiBold" Foreground="#6B7280" />
+                    <Border Background="#0F766E" CornerRadius="8" Padding="8" Margin="0,6,0,10">
+                        <TextBlock x:Name="lblEgoera" Foreground="White" FontWeight="Bold" />
+                    </Border>
+
+                    <Button x:Name="btnSortuEskaera" Content="Sortu eskaera" Style="{StaticResource AccionButton}" Click="BtnSortuEskaera_Click" />
+                    <Button x:Name="btnKargatuEskaera" Content="Kargatu eskaera" Style="{StaticResource AccionButton}" Click="BtnKargatuEskaera_Click" />
+                    <Button x:Name="btnEguneratuEskaera" Content="Eguneratu eskaera" Style="{StaticResource AccionButton}" Click="BtnEguneratuEskaera_Click" />
+                    <Button x:Name="btnEzabatuEskaera" Content="Ezabatu eskaera" Style="{StaticResource AccionButtonDanger}" Click="BtnEzabatuEskaera_Click" />
+                    <Button x:Name="btnOrdaindu" Content="Ordaindu eskaera" Style="{StaticResource AccionButtonSuccess}" Click="BtnOrdaindu_Click" />
+                    <Button x:Name="btnFaktura" Content="Faktura sortu" Style="{StaticResource AccionButtonWarning}" Click="BtnFaktura_Click" />
+
+                    <Separator Margin="0,10,0,10" />
+
+                    <Button x:Name="btnMahaia" Content="Editatu mahaia" Style="{StaticResource AccionButtonInfo}" Click="BtnMahaia_Click" />
+                    <Button x:Name="btnKomentsal" Content="Komentsal kopurua" Style="{StaticResource AccionButtonInfo}" Click="BtnKomentsal_Click" />
+                    <Button x:Name="btnKendu" Content="Produktua kendu" Style="{StaticResource AccionButtonDanger}" Click="BtnKendu_Click" />
+
+                    <Separator Margin="0,10,0,10" />
+
+                    <TextBlock x:Name="lblErabiltzaileaData" Foreground="#6B7280" FontSize="11" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

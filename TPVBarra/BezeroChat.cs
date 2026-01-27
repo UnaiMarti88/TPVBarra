@@ -2,7 +2,8 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Windows.Forms;
+using System.Windows;
+using WpfMessageBox = System.Windows.MessageBox;
 
 namespace TPVBarra
 {
@@ -34,7 +35,7 @@ namespace TPVBarra
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Arazoa txatera konektatzean: " + ex.Message);
+                WpfMessageBox.Show("Arazoa txatera konektatzean: " + ex.Message);
             }
         }
 
