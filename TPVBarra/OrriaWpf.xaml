@@ -43,29 +43,41 @@
                 Style="{StaticResource CardBorder}"
                 Margin="0,0,0,12">
             <DockPanel>
-                <TextBlock Text="TPV Barra"
-                           FontSize="20"
-                           FontWeight="Bold"
-                           Foreground="#111827"
-                           DockPanel.Dock="Left" />
+                <Button Content="Saioa itxi"
+                        Width="90"
+                        Height="30"
+                        Background="#EF4444"
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontWeight="Bold"
+                        Cursor="Hand"
+                        DockPanel.Dock="Right"
+                        Margin="12,0,0,0"
+                        Click="SaioaItxi_Click" />
 
                 <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Right"
-                            VerticalAlignment="Center">
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
                     <TextBlock Text="Erabiltzailea: " Foreground="#6B7280" Margin="0,0,6,0" />
                     <TextBlock x:Name="lblUsuario"
                                Foreground="#111827"
-                               FontWeight="SemiBold"
+                               FontWeight="SemiBold" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            DockPanel.Dock="Left"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                    <TextBlock Text="TPV Barra"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="#111827"
                                Margin="0,0,16,0" />
-                        <Button Content="Saioa itxi"
-                            Width="90"
-                            Height="30"
-                            Background="#EF4444"
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontWeight="Bold"
-                            Cursor="Hand"
-                            Click="SaioaItxi_Click" />
+                    <TextBlock x:Name="lblErabiltzaileaData"
+                               Foreground="#6B7280"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -175,7 +187,9 @@
 
                     <Separator Margin="0,10,0,10" />
 
-                    <TextBlock x:Name="lblErabiltzaileaData" Foreground="#6B7280" FontSize="11" TextWrapping="Wrap" />
+                    <Button x:Name="btnBueltaHasiera" Content="Buelta hasierara" Style="{StaticResource AccionButtonInfo}" Click="BtnBueltaHasiera_Click" />
+
+                    <Separator Margin="0,10,0,10" />
                 </StackPanel>
             </Border>
         </Grid>

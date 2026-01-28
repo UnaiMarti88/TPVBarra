@@ -77,7 +77,7 @@ namespace TPVBarra
 
             _timerDataOrdua.Tick += (s, e) =>
             {
-                lblErabiltzaileaData.Text = $"Erabiltzailea: {_loginIzena}\n{DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+                lblErabiltzaileaData.Text = $"{DateTime.Now:dd/MM/yyyy HH:mm:ss}";
             };
 
             _timerDataOrdua.Start();
@@ -708,6 +708,64 @@ namespace TPVBarra
             {
                 WpfMessageBox.Show("Mesedez, hautatu kentzeko produktu bat.");
             }
+        }
+
+        private async void BtnBueltaHasiera_Click(object sender, RoutedEventArgs e)
+        {
+            var logMezua = "Bueltatu hasierara";
+            var detaleak = new List<string>();
+
+            if (eskeraIdAukeratua != null)
+            {
+                detaleak.Add($"Eskaera: {eskeraIdAukeratua}");
+            }
+            if (mahaiaIdAukeratua != null)
+            {
+                detaleak.Add($"Mahaia: {mahaiaIdAukeratua}");
+            }
+            if (komensalKopurua != null)
+            {
+                detaleak.Add($"Komentsalak: {komensalKopurua}");
+            }
+            if (_orderRows.Count > 0)
+            {
+                detaleak.Add($"Produktuak: {_orderRows.Count}");
+            }
+
+            if (detaleak.Any())
+            {
+                logMezua += " - Ezeztuta: " + string.Join(", ", detaleak);
+            }
+
+            _orderRows.Clear();
+            eskeraIdAukeratua = null;
+            mahaiaIdAukeratua = null;
+            komensalKopurua = null;
+
+            EguneratuEgoeraTextua(null);
+            btnMahaia.Content = "Editatu mahaia";
+            panelCategorias.Children.Clear();
+            panelProductos.Children.Clear();
+
+            if (_txat)
+            {
+                chatHost.Content = new ChatKontrollerraWpf(_loginIzena);
+            }
+            else
+            {
+                chatHost.Content = new TextBlock
+                {
+                    Text = "Txata ez dago aktibatuta",
+                    Foreground = System.Windows.Media.Brushes.Gray,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                };
+            }
+
+            BotoiakHasieran();
+            ErakutsiBotoiaAukeratuMahaia();
+
+            await GordeLogaAsync(logMezua);
         }
 
         private void GehituProduktua(int produktuaId, string izena, decimal prezioa)
