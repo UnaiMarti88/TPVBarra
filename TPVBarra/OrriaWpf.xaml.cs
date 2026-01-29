@@ -634,8 +634,27 @@ namespace TPVBarra
 
                 if (erantzunaFaktura.Code == 200)
                 {
-                    await GordeLogaAsync($"Faktura sortuta. Eskaera: {selected.Id}, Mahaia: {selected.MahaiaId}");
-                    WpfMessageBox.Show("Faktura sortu duzu!\n" + string.Join("\n", erantzunaFaktura.Datuak));
+                   await GordeLogaAsync($"Faktura sortuta. Eskaera: {selected.Id}, Mahaia: {selected.MahaiaId}");
+ 
+ 
+ 
+                    // Kalkulatu total-a eta erakutsi leihoan
+ 
+                    decimal total = 0;
+ 
+                    var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(selected.Id);
+ 
+                    if (erantzunaProduktuak.Code == 200 && erantzunaProduktuak.Datuak != null)
+ 
+                    {
+ 
+                        total = erantzunaProduktuak.Datuak.Sum(p => p.PrezioUnitarioa * p.Kantitatea);
+ 
+                    }
+ 
+ 
+ 
+                    WpfMessageBox.Show($"Faktura ongi sortu da!\n{string.Join("\n", erantzunaFaktura.Datuak)}\nTOTALA: {total:C}");
                 }
                 else
                 {
