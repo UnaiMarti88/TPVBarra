@@ -680,15 +680,20 @@ namespace TPVBarra
 
                 var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskeraIdAukeratua.Value);
                 _orderRows.Clear();
-                foreach (var p in erantzunaProduktuak.Datuak)
-                {
-                    _orderRows.Add(new OrderRow
+                
+                var produktuakBatu = erantzunaProduktuak.Datuak
+                    .GroupBy(p => new { p.ProduktuaId, p.ProduktuaIzena, p.PrezioUnitarioa })
+                    .Select(g => new OrderRow
                     {
-                        ProduktuaId = p.ProduktuaId,
-                        Izena = p.ProduktuaIzena,
-                        Prezioa = p.PrezioUnitarioa,
-                        Kantitatea = p.Kantitatea
+                        ProduktuaId = g.Key.ProduktuaId,
+                        Izena = g.Key.ProduktuaIzena,
+                        Prezioa = g.Key.PrezioUnitarioa,
+                        Kantitatea = g.Sum(x => x.Kantitatea)
                     });
+
+                foreach (var row in produktuakBatu)
+                {
+                    _orderRows.Add(row);
                 }
 
                 EguneratuEgoeraTextua(selected.SukaldeaEgoera);
