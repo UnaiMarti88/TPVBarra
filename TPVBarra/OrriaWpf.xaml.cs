@@ -99,7 +99,7 @@ namespace TPVBarra
 
         private void BotoiakHasieran()
         {
-            btnSortuEskaera.IsEnabled = false;
+            btnSortuEskaera.IsEnabled = true;
             btnKargatuEskaera.IsEnabled = true;
             btnFaktura.IsEnabled = true;
             btnEguneratuEskaera.IsEnabled = false;
@@ -157,8 +157,14 @@ namespace TPVBarra
         private void BotoiakMahaiaAukeratuta()
         {
             btnSortuEskaera.IsEnabled = true;
-            btnKomentsal.IsEnabled = true;
+            btnKargatuEskaera.IsEnabled = true;
+            btnFaktura.IsEnabled = true;
+            btnEguneratuEskaera.IsEnabled = true;
+            btnEzabatuEskaera.IsEnabled = true;
+            btnKendu.IsEnabled = true;
+            btnOrdaindu.IsEnabled = true;
             btnMahaia.IsEnabled = true;
+            btnKomentsal.IsEnabled = true;
             eskeraIdAukeratua = null;
         }
 

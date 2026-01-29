@@ -5,6 +5,28 @@
         WindowState="Maximized"
         Background="#F3F4F6">
     <Window.Resources>
+        <FontFamily x:Key="InterFont">pack://application:,,,/Fonts/#Inter</FontFamily>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="FontFamily" Value="{StaticResource InterFont}"/>
+        </Style>
         <Style x:Key="AccionButton" TargetType="Button">
             <Setter Property="Height" Value="42" />
             <Setter Property="Margin" Value="0,0,0,8" />
@@ -13,18 +35,89 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A3A3A3"/>
+                    <Setter Property="Foreground" Value="#E5E7EB"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+                <EventTrigger RoutedEvent="Button.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="1.08" Duration="0:0:0.15"/>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)" To="1.08" Duration="0:0:0.15"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Button.MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.15"/>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.15"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="AccionButtonSuccess" TargetType="Button" BasedOn="{StaticResource AccionButton}">
             <Setter Property="Background" Value="#059669" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A3A3A3"/>
+                    <Setter Property="Foreground" Value="#E5E7EB"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+            <!-- No hay cambio de color en hover -->
         </Style>
         <Style x:Key="AccionButtonWarning" TargetType="Button" BasedOn="{StaticResource AccionButton}">
             <Setter Property="Background" Value="#D97706" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A3A3A3"/>
+                    <Setter Property="Foreground" Value="#E5E7EB"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+            <!-- No hay cambio de color en hover -->
         </Style>
         <Style x:Key="AccionButtonDanger" TargetType="Button" BasedOn="{StaticResource AccionButton}">
             <Setter Property="Background" Value="#DC2626" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A3A3A3"/>
+                    <Setter Property="Foreground" Value="#E5E7EB"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+            <!-- No hay cambio de color en hover -->
         </Style>
         <Style x:Key="AccionButtonInfo" TargetType="Button" BasedOn="{StaticResource AccionButton}">
             <Setter Property="Background" Value="#0EA5E9" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A3A3A3"/>
+                    <Setter Property="Foreground" Value="#E5E7EB"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+            <!-- No hay cambio de color en hover -->
         </Style>
         <Style x:Key="CardBorder" TargetType="Border">
             <Setter Property="Background" Value="White" />
@@ -46,8 +139,7 @@
                 <Button Content="Saioa itxi"
                         Width="90"
                         Height="30"
-                        Background="#EF4444"
-                        Foreground="White"
+                        Style="{StaticResource AccionButtonDanger}"
                         BorderThickness="0"
                         FontWeight="Bold"
                         Cursor="Hand"
@@ -146,8 +238,7 @@
                                     Content="Aukeratu mahaia"
                                     Width="220"
                                     Height="48"
-                                    Background="#0EA5E9"
-                                    Foreground="White"
+                                    Style="{StaticResource AccionButtonInfo}"
                                     BorderThickness="0"
                                     FontWeight="Bold"
                                     HorizontalAlignment="Center"
