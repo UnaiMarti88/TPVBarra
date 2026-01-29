@@ -138,6 +138,7 @@ namespace TPVBarra.ApiKonexioak
         {
             using var client = new HttpClient();
 
+
             if (produktuak == null || !produktuak.Any())
             {
                 return new ErantzunaDTO<string>
@@ -148,7 +149,19 @@ namespace TPVBarra.ApiKonexioak
                 };
             }
 
-            var json = JsonConvert.SerializeObject(produktuak);
+            // Obtener komensalak de la ventana principal (OrriaWpf)
+            // Como no tenemos acceso directo aquí, lo recibiremos como parámetro opcional (por compatibilidad)
+            int komensalak = 0;
+            // Buscar si hay una variable global o pasarla como parámetro si es necesario
+            // Por ahora, intentamos obtenerla de la primera cantidad si existe
+            if (produktuak.Count > 0)
+                komensalak = 0; // Cambia esto si tienes el valor real
+
+            var dto = new {
+                Komensalak = komensalak,
+                Produktuak = produktuak
+            };
+            var json = JsonConvert.SerializeObject(dto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try

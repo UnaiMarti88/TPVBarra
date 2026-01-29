@@ -99,10 +99,11 @@ namespace TPVBarra
 
         private void BotoiakHasieran()
         {
+
             btnSortuEskaera.IsEnabled = true;
             btnKargatuEskaera.IsEnabled = true;
             btnFaktura.IsEnabled = true;
-            btnEguneratuEskaera.IsEnabled = false;
+            btnEguneratuEskaera.IsEnabled = eskeraIdAukeratua != null;
             btnEzabatuEskaera.IsEnabled = false;
             btnKendu.IsEnabled = false;
             btnOrdaindu.IsEnabled = false;
@@ -121,7 +122,7 @@ namespace TPVBarra
             btnSortuEskaera.IsEnabled = false;
             btnKargatuEskaera.IsEnabled = true;
             btnFaktura.IsEnabled = true;
-            btnEguneratuEskaera.IsEnabled = true;
+            btnEguneratuEskaera.IsEnabled = eskeraIdAukeratua != null;
             btnEzabatuEskaera.IsEnabled = true;
             btnKendu.IsEnabled = true;
             btnOrdaindu.IsEnabled = true;
@@ -131,10 +132,11 @@ namespace TPVBarra
 
         private void BotoiakEskaeraOrdainduta()
         {
+
             btnSortuEskaera.IsEnabled = true;
             btnKargatuEskaera.IsEnabled = true;
             btnFaktura.IsEnabled = true;
-            btnEguneratuEskaera.IsEnabled = false;
+            btnEguneratuEskaera.IsEnabled = eskeraIdAukeratua != null;
             btnEzabatuEskaera.IsEnabled = false;
             btnKendu.IsEnabled = false;
             btnOrdaindu.IsEnabled = false;
@@ -151,6 +153,7 @@ namespace TPVBarra
         private void BotoiakProduktuAukeratu()
         {
             btnSortuEskaera.IsEnabled = mahaiaIdAukeratua != null && komensalKopurua != null;
+            btnEguneratuEskaera.IsEnabled = eskeraIdAukeratua != null;
             btnKendu.IsEnabled = true;
         }
 
@@ -159,7 +162,7 @@ namespace TPVBarra
             btnSortuEskaera.IsEnabled = true;
             btnKargatuEskaera.IsEnabled = true;
             btnFaktura.IsEnabled = true;
-            btnEguneratuEskaera.IsEnabled = true;
+            btnEguneratuEskaera.IsEnabled = eskeraIdAukeratua != null;
             btnEzabatuEskaera.IsEnabled = true;
             btnKendu.IsEnabled = true;
             btnOrdaindu.IsEnabled = true;
@@ -491,8 +494,27 @@ namespace TPVBarra
                 return;
             }
 
+
             var api = new ApiEskaerak();
-            var produktuak = _orderRows
+            // Agrupar por ProduktuaId y sumar cantidades
+
+            // Agrupar productos iguales en la tabla antes de enviar
+            var productosAgrupados = _orderRows
+                .GroupBy(row => row.ProduktuaId)
+                .Select(g => new OrderRow
+                {
+                    ProduktuaId = g.Key,
+                    Izena = g.First().Izena,
+                    Prezioa = g.First().Prezioa,
+                    Kantitatea = g.Sum(x => x.Kantitatea)
+                })
+                .ToList();
+
+            _orderRows.Clear();
+            foreach (var row in productosAgrupados)
+                _orderRows.Add(row);
+
+            var produktuak = productosAgrupados
                 .Select(row => new EskaeraProduktuaEditatuDTO
                 {
                     ProduktuaId = row.ProduktuaId,
@@ -506,25 +528,33 @@ namespace TPVBarra
                 return;
             }
 
+
+
+
+
             var erantzuna = await api.EguneratuEskaeraAsync(eskeraIdAukeratua.Value, produktuak);
+
+
 
             if (erantzuna.Code == 200)
             {
                 await GordeLogaAsync($"Eskaera eguneratu da. Eskaera ID: {eskeraIdAukeratua}");
                 WpfMessageBox.Show("Eskaera eguneratu da arrakastaz!");
 
+
                 var erantzunaProduktuak = await api.LortuEskaeraProduktuakAsync(eskeraIdAukeratua.Value);
                 _orderRows.Clear();
-                foreach (var p in erantzunaProduktuak.Datuak)
-                {
-                    _orderRows.Add(new OrderRow
+                var produktuakElkartutakoak = erantzunaProduktuak.Datuak
+                    .GroupBy(p => p.ProduktuaId)
+                    .Select(g => new OrderRow
                     {
-                        ProduktuaId = p.ProduktuaId,
-                        Izena = p.ProduktuaIzena,
-                        Prezioa = p.PrezioUnitarioa,
-                        Kantitatea = p.Kantitatea
+                        ProduktuaId = g.Key,
+                        Izena = g.First().ProduktuaIzena,
+                        Prezioa = g.First().PrezioUnitarioa,
+                        Kantitatea = g.Sum(x => x.Kantitatea)
                     });
-                }
+                foreach (var row in produktuakElkartutakoak)
+                    _orderRows.Add(row);
 
                 var erantzunaEskaerak = await api.LortuEskaerakAsync(_loginId);
                 if (erantzunaEskaerak.Code == 200)
