@@ -369,9 +369,10 @@ namespace TPVBarra
             }
         }
 
-        private void SaioaItxi_Click(object sender, RoutedEventArgs e)
+        private async void SaioaItxi_Click(object sender, RoutedEventArgs e)
         {
             _logoutRequested = true;
+            await GordeLogaAsync($"Saioa itxi: {_loginId}");
             var login = new LoginaWpf();
             login.Show();
             Close();
