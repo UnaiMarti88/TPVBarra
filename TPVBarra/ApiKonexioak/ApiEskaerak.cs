@@ -26,7 +26,7 @@ namespace TPVBarra.ApiKonexioak
             var json = JsonConvert.SerializeObject(dto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("https://localhost:7236/api/eskaerak", content);
+            var response = await client.PostAsync("http://192.168.1.10:5093/api/eskaerak", content);
             var responseJson = await response.Content.ReadAsStringAsync();
 
             var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<String>>(responseJson);
@@ -38,7 +38,7 @@ namespace TPVBarra.ApiKonexioak
             using var client = new HttpClient();
 
             var response = await client.GetAsync(
-                $"https://localhost:7236/api/eskaerak/mahaiak/{mahaiaId}/kapazitatea"
+                $"http://192.168.1.10:5093/api/eskaerak/mahaiak/{mahaiaId}/kapazitatea"
             );
 
             var responseJson = await response.Content.ReadAsStringAsync();
@@ -61,7 +61,7 @@ namespace TPVBarra.ApiKonexioak
         public async Task<ErantzunaDTO<EskaeraDTO>> LortuEskaerakAsync(int erabiltzaileId)
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:7236/api/eskaerak?erabiltzaileId={erabiltzaileId}");
+            var response = await client.GetAsync($"http://192.168.1.10:5093/api/eskaerak?erabiltzaileId={erabiltzaileId}");
             var json = await response.Content.ReadAsStringAsync();
 
             var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<EskaeraDTO>>(json);
@@ -82,7 +82,7 @@ namespace TPVBarra.ApiKonexioak
         public async Task<ErantzunaDTO<EskaeraLortuDTO>> LortuEskaeraProduktuakAsync(int eskaeraId)
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}/produktuak");
+            var response = await client.GetAsync($"http://192.168.1.10:5093/api/eskaerak/{eskaeraId}/produktuak");
             var json = await response.Content.ReadAsStringAsync();
 
             var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<EskaeraLortuDTO>>(json);
@@ -106,7 +106,7 @@ namespace TPVBarra.ApiKonexioak
 
             try
             {
-                var response = await client.DeleteAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}");
+                var response = await client.DeleteAsync($"http://192.168.1.10:5093/api/eskaerak/{eskaeraId}");
                 var json = await response.Content.ReadAsStringAsync();
 
                 var erantzuna = JsonConvert.DeserializeObject<ErantzunaDTO<string>>(json);
@@ -166,7 +166,7 @@ namespace TPVBarra.ApiKonexioak
 
             try
             {
-                var response = await client.PutAsync($"https://localhost:7236/api/eskaerak/{eskaeraId}", content);
+                var response = await client.PutAsync($"http://192.168.1.10:5093/api/eskaerak/{eskaeraId}", content);
                 var responseJson = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(responseJson))
@@ -214,7 +214,7 @@ namespace TPVBarra.ApiKonexioak
             try
             {
                 var response = await client.PostAsync(
-                    $"https://localhost:7236/api/eskaerak/{eskaeraId}/ordainduEskaera",
+                    $"http://192.168.1.10:5093/api/eskaerak/{eskaeraId}/ordainduEskaera",
                     null
                 );
 
@@ -262,7 +262,7 @@ namespace TPVBarra.ApiKonexioak
             try
             {
                 var response = await client.PostAsync(
-                    $"https://localhost:7236/api/eskaerak/{eskaeraId}/sortuFaktura",
+                    $"http://192.168.1.10:5093/api/eskaerak/{eskaeraId}/sortuFaktura",
                     null
                 );
 
@@ -304,7 +304,7 @@ namespace TPVBarra.ApiKonexioak
             using var client = new HttpClient();
             try
             {
-                var response = await client.GetAsync("https://localhost:7236/api/eskaerak/ordainketa-pendiente");
+                var response = await client.GetAsync("http://192.168.1.10:5093/api/eskaerak/ordainketa-pendiente");
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(json))

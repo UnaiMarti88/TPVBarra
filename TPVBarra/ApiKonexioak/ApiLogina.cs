@@ -33,7 +33,7 @@ namespace TPVBarra.ApiKonexioak
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
-            HttpResponseMessage response = await client.PostAsync("https://localhost:7236/api/Logina", content);
+            HttpResponseMessage response = await client.PostAsync("http://192.168.1.10:5093/api/Logina", content);
 
             if (!response.IsSuccessStatusCode)
             {

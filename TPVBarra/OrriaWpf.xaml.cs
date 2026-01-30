@@ -275,7 +275,7 @@ namespace TPVBarra
             try
             {
                 using var client = new HttpClient();
-                client.BaseAddress = new Uri("https://localhost:7236/");
+                client.BaseAddress = new Uri("http://192.168.1.10:5093/");
 
                 var log = new
                 {

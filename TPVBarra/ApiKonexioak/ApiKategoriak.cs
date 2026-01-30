@@ -12,7 +12,7 @@ namespace TPVBarra.ApiKonexioak
         internal async Task<List<KategoriaDTO>> LortuKategoriak()
         {
             using var client = new HttpClient();
-            var response = await client.GetAsync("https://localhost:7236/api/Kategoria");
+            var response = await client.GetAsync("http://192.168.1.10:5093/api/Kategoria");
             response.EnsureSuccessStatusCode();
 
             string json = await response.Content.ReadAsStringAsync();
